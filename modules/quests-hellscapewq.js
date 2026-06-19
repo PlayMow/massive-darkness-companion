@@ -939,6 +939,7 @@ ModManager.modules.push(function(){
                             ]
                         },
                         {
+                            _debug:true,
                             forCampaign:[ ], // Uses large maps and one-shot level cap.
                             type:"collect",
                             objective:{
@@ -1100,7 +1101,7 @@ ModManager.modules.push(function(){
                                                 explanation:[
                                                     {
                                                         IT:"Una volta eliminati i 2 {label.event@2}, {label.questVictory@0}.",
-                                                        EN:"When the 2 {label.event@2}, {label.questVictory@0}."
+                                                        EN:"When the 2 {label.event@2} are slain, {label.questVictory@0}."
                                                     }
                                                 ]
                                             }
@@ -1433,8 +1434,8 @@ ModManager.modules.push(function(){
                                                 ],
                                                 explanation:[
                                                     {
-                                                        IT:"C'&egrave; {label.passage@5} {label.passage@3} che conduce fuori da questo Dungeon, {label.passage@12} nella Zona con il segnalino Tempo {symbol.timeToken} in una Camera della Tessera iniziale ({tileLabel.first}), ma {label.passage@7}. {label.passage@9}, gli Eroi devono usare {label.key@3} {label.key@1} nei posti corretti, indicate dai segnalini Obiettivo grigi. Per farlo, un qualsiasi Eroe in possesso {label.key@5} {label.key@0} e che si trova in una zona con un segnalino obiettivo grigio, pu&ograve; spendere 1 PM {label.key@6} (scartare sia il segnalino Obiettivo sul lato grigio che quello sul lato colorato). Non appena tutti i segnalini Obiettivo grigi sono stati rimossi, {label.passage@4} {label.passage@3} {label.passage@10}.",
-                                                        EN:"There is {label.passage@5} {label.passage@3} that leads out of this Dungeon, {label.passage@12} in the Zone with the Time token {symbol.timeToken} of a Chamber of the starting Tile ({tileLabel.first}), but {label.passage@7}. {label.passage@9}, the Heroes must use {label.key@3} {label.key@1} in the correct locations, indicated by the gray Objective tokens. To do so, any Hero holding {label.key@5} {label.key@0} and standing in a gray Objective token Zone may spend 1 MP {label.key@6} (discard both gray and color-side-up Objective tokens). As soon as all gray Objective tokens have been removed, {label.passage@4} {label.passage@3} {label.passage@10}."
+                                                        IT:"C'&egrave; {label.passage@5} {label.passage@3} che conduce fuori da questo Dungeon, {label.passage@12} nella Zona con il segnalino Tempo {symbol.timeToken} in una Camera della Tessera iniziale ({tileLabel.first}), ma {label.passage@7}. {label.passage@9}, gli Eroi devono usare {label.key@3} {label.key@1} nei posti corretti, indicate dai segnalini Obiettivo grigi. Per farlo, un qualsiasi Eroe in possesso {label.key@5} {label.key@0} e che si trova in una zona con un segnalino obiettivo grigio, pu&ograve; spendere 1 PM {label.key@6} (scartare sia il segnalino Obiettivo sul lato grigio che quello sul lato colorato). Non appena i {tokensCount.objective} segnalini Obiettivo grigi sono stati rimossi, {label.passage@4} {label.passage@3} {label.passage@10}.",
+                                                        EN:"There is {label.passage@5} {label.passage@3} that leads out of this Dungeon, {label.passage@12} in the Zone with the Time token {symbol.timeToken} of a Chamber of the starting Tile ({tileLabel.first}), but {label.passage@7}. {label.passage@9}, the Heroes must use {label.key@3} {label.key@1} in the correct locations, indicated by the gray Objective tokens. To do so, any Hero holding {label.key@5} {label.key@0} and standing in a gray Objective token Zone may spend 1 MP {label.key@6} (discard both gray and color-side-up Objective tokens). As soon as all {tokensCount.objective} gray Objective tokens have been removed, {label.passage@4} {label.passage@3} {label.passage@10}."
                                                     }
                                                 ]
                                             }
