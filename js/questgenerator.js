@@ -210,6 +210,10 @@ QuestGenerator=(function() {
 
             for (let k in mapModel)
                 mergeMapConfig(resources,k,pickRandomElementValue(mapModel[k]),mapConfig);
+
+            if (campaignPageGenerator && campaignPageGenerator.questFlags)
+                for (let k in campaignPageGenerator.questFlags)
+                    mergeMapConfig(resources,k,pickRandomElementValue(campaignPageGenerator.questFlags[k]),mapConfig);
         
             // Apply the game mode (if any)
             

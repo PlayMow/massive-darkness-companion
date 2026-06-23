@@ -2969,21 +2969,27 @@ ModManager.modules.push(function(){
                                     type:"map",
                                     actMap:[
                                         {
+                                            questFlags:{ forge:[ "forceForge" ] },
                                             act:0,
                                             map:0
                                         },{
+                                            questFlags:{ forge:[ "forceForge" ] },
                                             act:0,
                                             map:1
                                         },{
+                                            questFlags:{ forge:[ "forceForge" ] },
                                             act:0,
                                             map:2
                                         },{
+                                            questFlags:{ forge:[ "forceForge" ] },
                                             act:1,
                                             map:0
                                         },{
+                                            questFlags:{ forge:[ "forceForge" ] },
                                             act:1,
                                             map:1
                                         },{
+                                            questFlags:{ forge:[ "forceForge" ] },
                                             act:1,
                                             map:2
                                         }

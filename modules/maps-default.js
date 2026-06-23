@@ -3673,6 +3673,22 @@ ModManager.modules.push(function(){
                                 ]
                             }
                         },
+                        // --- Campaign flags
+                        {
+                            attribute:"forge",
+                            value:"forceForge",
+                            config:{
+                                finalizeCorridorsContent:[
+                                    [
+                                        { elements:[
+                                            { ifNotToken:{ id:"forge" }, at:0.7, tokens:[
+                                                { id:"forge" }
+                                            ]}
+                                        ]}
+                                    ]
+                                ]
+                            }
+                        },
                         // --- Room limits
                         {
                             attribute:"roomLimits",

@@ -497,6 +497,7 @@ CampaignGenerator=(function() {
 
                         pageData.generator.questModel = questModel;
                         pageData.generator.questVersion = questVersion;
+                        pageData.generator.questFlags = pageData.actMap.questFlags;
 
                     }
 

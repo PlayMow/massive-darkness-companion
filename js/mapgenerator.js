@@ -1870,8 +1870,18 @@ MapGenerator=(function() {
     }
 
     // --- Corridors content
+
+    function checkElementCondition(element, map) {
+        let
+            add = true;
+
+        if (element.ifNotToken)
+            add &= !map.usedTokens[element.ifNotToken.id];
+
+        return add;
+    }
     
-    function addCorridorsContent(resources,result,map,content) {
+    function addCorridorsContent(resources,result,map,content,finalize) {
 
         if (map.startPoint) {
 
@@ -1900,114 +1910,129 @@ MapGenerator=(function() {
 
             }
 
-            content.forEach(subcontent=>{
+            [
+                content,
+                finalize
+            ].forEach(set=>{
+                if (set)
+                    set.forEach(subcontent=>{
 
-                if (subcontent.atTurn) {
+                        if (subcontent.atTurn) {
 
-                    subcontent.elements.forEach(element=>{
-                        
-                        let
-                            requestedTurns = subcontent.atTurn;
+                            subcontent.elements.forEach(element=>{
 
-                        while (requestedTurns && !cellsByTurns[requestedTurns])
-                            requestedTurns--;
-
-                        if (cellsByTurns[requestedTurns]) {
-
-                            let
-                                set = cellsByTurns[requestedTurns],
-                                position = element.atCell === undefined ? Math.floor(set.maxDistance*element.at) : element.atCell;
-
-                            while (!set.cellsByDistance[position] && (position<=set.maxDistance))
-                                position++;
-                            
-                            if (set.cellsByDistance[position]) {
-                                let
-                                    cell = pickRandomElementValue(set.cellsByDistance[position]);
-
-                                element.tokens.forEach(token=>{
-                                    addToken(resources,result,token,false,map,cell);
-                                })
-
-                                for (let s in cellsByTurns) {
+                                if (checkElementCondition(element, map)) {
+                                    
                                     let
-                                        set = cellsByTurns[s],
-                                        maxDistance = 0;
-                                    for (let k in set.cellsByDistance) {
+                                        requestedTurns = subcontent.atTurn;
+
+                                    while (requestedTurns && !cellsByTurns[requestedTurns])
+                                        requestedTurns--;
+
+                                    if (cellsByTurns[requestedTurns]) {
+
                                         let
-                                            pos = set.cellsByDistance[k].indexOf(cell);
-                                        if (pos != -1) {
-                                            set.cellsByDistance[k].splice(pos);
-                                            if (set.cellsByDistance[k].length == 0)
-                                                delete set.cellsByDistance[k];
-                                            else
-                                                maxDistance = Math.max(maxDistance,k);
-                                        } else
-                                            maxDistance = Math.max(maxDistance,k);
+                                            set = cellsByTurns[requestedTurns],
+                                            position = element.atCell === undefined ? Math.floor(set.maxDistance*element.at) : element.atCell;
+
+                                        while (!set.cellsByDistance[position] && (position<=set.maxDistance))
+                                            position++;
+                                        
+                                        if (set.cellsByDistance[position]) {
+                                            let
+                                                cell = pickRandomElementValue(set.cellsByDistance[position]);
+
+                                            element.tokens.forEach(token=>{
+                                                addToken(resources,result,token,false,map,cell);
+                                            })
+
+                                            for (let s in cellsByTurns) {
+                                                let
+                                                    set = cellsByTurns[s],
+                                                    maxDistance = 0;
+                                                for (let k in set.cellsByDistance) {
+                                                    let
+                                                        pos = set.cellsByDistance[k].indexOf(cell);
+                                                    if (pos != -1) {
+                                                        set.cellsByDistance[k].splice(pos);
+                                                        if (set.cellsByDistance[k].length == 0)
+                                                            delete set.cellsByDistance[k];
+                                                        else
+                                                            maxDistance = Math.max(maxDistance,k);
+                                                    } else
+                                                        maxDistance = Math.max(maxDistance,k);
+                                                }
+                                                if (maxDistance)
+                                                    cellsByTurns[s].maxDistance = maxDistance;
+                                                else
+                                                    delete cellsByTurns[s];
+                                            };
+
+                                        }
+
                                     }
-                                    if (maxDistance)
-                                        cellsByTurns[s].maxDistance = maxDistance;
-                                    else
-                                        delete cellsByTurns[s];
-                                };
+                                }
+                            });
+                                
+                        } else {
 
-                            }
-
-                        }
-                    });
-                        
-                } else {
-
-                    let
-                        cellsByDistance={},
-                        maxDistance = 0;
-
-                    for (let k in map.startPoint.paths) {
-                        let
-                            path = map.startPoint.paths[k],
-                            distance = path.length-1,
-                            lastCell = path[distance];
-    
-                        if (
-                            (!subcontent.atTileId || (lastCell.tileData.tileId == subcontent.atTileId))
-                        ) {
-    
-                            if (!cellsByDistance[distance]) cellsByDistance[distance]=[];
-                            cellsByDistance[distance].push(lastCell);
-    
-                            maxDistance=Math.max(maxDistance,distance);
-    
-                        }
-                    }
-    
-                    if (subcontent.tileId && !maxDistance)
-                        console.warn("For corridor, can't find tile",subcontent.atTileId);
-
-                    subcontent.elements.forEach(element=>{
-                        
-                        let
-                            position = element.atCell === undefined ? Math.floor(maxDistance*element.at) : element.atCell;
-
-                        while (!cellsByDistance[position] && (position<=maxDistance))
-                            position++;
-                        
-                        if (cellsByDistance[position]) {
                             let
-                                cell = pickRandomElement(cellsByDistance[position]);
+                                cellsByDistance={},
+                                maxDistance = 0;
 
-                            element.tokens.forEach(token=>{
-                                addToken(resources,result,token,false,map,cell);
+                            for (let k in map.startPoint.paths) {
+                                let
+                                    path = map.startPoint.paths[k],
+                                    distance = path.length-1,
+                                    lastCell = path[distance];
+            
+                                if (
+                                    (!subcontent.atTileId || (lastCell.tileData.tileId == subcontent.atTileId))
+                                ) {
+            
+                                    if (!cellsByDistance[distance]) cellsByDistance[distance]=[];
+                                    cellsByDistance[distance].push(lastCell);
+            
+                                    maxDistance=Math.max(maxDistance,distance);
+            
+                                }
+                            }
+            
+                            if (subcontent.tileId && !maxDistance)
+                                console.warn("For corridor, can't find tile",subcontent.atTileId);
+
+                            subcontent.elements.forEach(element=>{
+
+                                if (checkElementCondition(element, map)) {
+                                    
+                                    let
+                                        position = element.atCell === undefined ? Math.floor(maxDistance*element.at) : element.atCell;
+
+                                    while (!cellsByDistance[position] && (position<=maxDistance))
+                                        position++;
+                                    
+                                    if (cellsByDistance[position]) {
+                                        let
+                                            cell = pickRandomElement(cellsByDistance[position]);
+
+                                        element.tokens.forEach(token=>{
+                                            addToken(resources,result,token,false,map,cell);
+                                        })
+
+                                        if (cellsByDistance[position].length == 0)
+                                            delete cellsByDistance[position];
+                                    }
+
+                                }
+
                             })
 
-                            if (cellsByDistance[position].length == 0)
-                                delete cellsByDistance[position];
                         }
 
                     })
 
-                }
-
             })
+           
                 
 
         }
@@ -2102,7 +2127,7 @@ MapGenerator=(function() {
 
                 addPillars(resources,result,map,result.mapConfig.corridorsPillarsMinDistance);
                 addOnPaths(resources,result,map);
-                addCorridorsContent(resources,result,map,result.mapConfig.corridorsContent);
+                addCorridorsContent(resources,result,map,result.mapConfig.corridorsContent,result.mapConfig.finalizeCorridorsContent);
 
                 finalizeMap(map);
 
