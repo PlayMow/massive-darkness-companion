@@ -2216,6 +2216,10 @@ Tools=(function(){
                                 m1="(H)";
                                 break;
                             }
+                            case "companionHealth":{
+                                m1="(C)";
+                                break;
+                            }
                             case "bossPhase2Health":{
                                 m1="(H2)";
                                 break;
@@ -2241,6 +2245,7 @@ Tools=(function(){
                 for (let k in boss.levels) {
                     let
                         totalHealth = 0,
+                        companionHealth = 0,
                         label = "<b>"+boss.title.EN+"</b> Lv. <b>"+k+"</b>",
                         bossMode = boss.labels.bossMode;
 
@@ -2270,7 +2275,13 @@ Tools=(function(){
                         oneshotHtml+="[!!]";
                         errors.push("Boss "+label+" is missing base health (bossHealth)");
                     }
+
+                    if (boss.levels[k].labels.companionHealth) {
+                        oneshotHtml+=" (Companion: "+boss.levels[k].labels.companionHealth.EN+")";
+                        companionHealth += boss.levels[k].labels.companionHealth.EN;
+                    }
                     oneshotHtml+="</td>";
+
                     if (boss.levels[k].labels.bossPhase2Health) {
                         if (!boss.levels[k].labels.bossPhase2Modifier) {
                             errors.push("Boss "+label+" is missing phase 2 modifier text (bossPhase2Modifier)");
@@ -2333,13 +2344,17 @@ Tools=(function(){
                                             if (boss.levels[l]) {
                                                 let
                                                     total = 0,
+                                                    companionTotal = 0,
                                                     bonus = 0,
+                                                    companionBonus = 0,
                                                     prep1 = boss.levels[l].labels.bossModifier,
                                                     prep2 = boss.levels[l].labels.bossPhase2Modifier,
                                                     bossMode = boss.labels.bossMode;
                                                 campaignHtml+="<tr><td>"+a+"</td><td>"+m+"</td><td>"+l+"</td>";
                                                 if (boss.levels[l].labels.bossHealth)
                                                     total+=boss.levels[l].labels.bossHealth.EN;
+                                                if (boss.levels[l].labels.companionHealth)
+                                                    companionTotal+=boss.levels[l].labels.companionHealth.EN;
                                                 if (boss.levels[l].labels.bossPhase2Health)
                                                     total+=boss.levels[l].labels.bossPhase2Health.EN;
                                                 campaignHtml+="<td>"+total+"</td>";
@@ -2361,6 +2376,8 @@ Tools=(function(){
                                                     if (row.mods.labelsBonus) {
                                                         if (row.mods.labelsBonus.bossHealth)
                                                             bonus += row.mods.labelsBonus.bossHealth.EN;
+                                                        if (row.mods.labelsBonus.companionHealth)
+                                                            companionBonus += row.mods.labelsBonus.companionHealth.EN;
                                                         if (row.mods.labelsBonus.bossPhase2Health) {
                                                             if (!boss.levels[l].labels.bossPhase2Health)
                                                                 errors.push("Boss "+label+" is giving phase 2 bonus without phase 2 base health");
@@ -2368,13 +2385,14 @@ Tools=(function(){
                                                         }
                                                     }
                                                 }
-                                                campaignHtml+="<td "+(bonus == 0 ? "style='background-color:#0f0'" : "")+">"+bonus+"</td>";
+                                                campaignHtml+="<td "+(bonus == 0 ? "style='background-color:#0f0'" : "")+">"+bonus+(companionBonus ? " (Companion: "+companionBonus+")" : "")+"</td>";
                                                 total+=bonus;
+                                                companionTotal+=companionBonus;
                                                 if (boss.components) {
-                                                    campaignHtml+="<td>"+(total*boss.components)+" ("+total+"&times;"+boss.components+")</td>";
+                                                    campaignHtml+="<td>"+(total*boss.components)+" ("+total+"&times;"+boss.components+") "+(companionTotal ? " (Companion: "+companionTotal+")" : "")+"</td>";
                                                     total*=boss.components;
                                                 } else {
-                                                    campaignHtml+="<td>"+total+"</td>";
+                                                    campaignHtml+="<td>"+total+(companionTotal ? " (Companion: "+companionTotal+")" : "")+"</td>";
                                                 }
                                                 
                                                 if (prep1)

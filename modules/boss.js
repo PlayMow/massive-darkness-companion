@@ -44,6 +44,10 @@ ModManager.modules.push(function(){
             { bossHealth:{ EN:-5 } },
             { bossHealth:{ EN:-5 } }
         ],
+        SINGLEPHASECOMPANIONBOSSWEAK_5=[
+            { companionHealth:{ EN: -1 }, bossHealth:{ EN:-5 } },
+            { companionHealth:{ EN: -1 }, bossHealth:{ EN:-5 } }
+        ],
         SINGLEPHASEGROUPBOSSWEAK=[
             { bossHealth:{ EN:-1 } },
             { bossHealth:{ EN:-1 } }
@@ -62,6 +66,13 @@ ModManager.modules.push(function(){
             { bossHealth:{ EN:25 } },
             { bossHealth:{ EN:35 } },
             { bossHealth:{ EN:45 } },
+        ],
+        SINGLEPHASECOMPANIONBOSSBONUS_5=[
+            { companionHealth:{ EN:1 }, bossHealth:{ EN:5 } },
+            { companionHealth:{ EN:3 }, bossHealth:{ EN:15 } },
+            { companionHealth:{ EN:5 }, bossHealth:{ EN:25 } },
+            { companionHealth:{ EN:7 }, bossHealth:{ EN:35 } },
+            { companionHealth:{ EN:9 }, bossHealth:{ EN:45 } },
         ],
         SINGLEPHASEGROUPBOSSBONUS=[
             { bossHealth:{ EN:1 } },
@@ -106,6 +117,36 @@ ModManager.modules.push(function(){
             4:{
                 labels:{
                     bossHealth:{ EN:45 },
+                    bossModifier:BOSSMODIFIER
+                }
+            }
+        },
+        COMPANIONBOSSLEVELS={
+            1:{
+                labels:{
+                    bossHealth:{ EN:15 },
+                    companionHealth:{ EN:3 },
+                    bossModifier:BOSSMODIFIER
+                }
+            },
+            2:{
+                labels:{
+                    bossHealth:{ EN:25 },
+                    companionHealth:{ EN:5 },
+                    bossModifier:BOSSMODIFIER
+                }
+            },
+            3:{
+                labels:{
+                    bossHealth:{ EN:35 },
+                    companionHealth:{ EN:7 },
+                    bossModifier:BOSSMODIFIER
+                }
+            },
+            4:{
+                labels:{
+                    bossHealth:{ EN:45 },
+                    companionHealth:{ EN:9 },
                     bossModifier:BOSSMODIFIER
                 }
             }
@@ -2207,67 +2248,67 @@ ModManager.modules.push(function(){
                                     "<p>If the Heroes manage to defeat the Scorpion King, {label.bossBeat@0} and the Quest ends with a victory.</p>"
                             }
                         },{
-                            levels:BOSSLEVELS,
+                            levels:COMPANIONBOSSLEVELS,
                             campaign:[
                                 { at:PLAINAT },
                                 {
                                     at:WEAKAT,
                                     mods:{
-                                        labelsBonus:SINGLEPHASEBOSSWEAK[0]
+                                        labelsBonus:SINGLEPHASECOMPANIONBOSSWEAK_5[0]
                                     }
                                 },
                                 {
                                     at:BOSSAT[0],
                                     mods:{
-                                        labelsBonus:SINGLEPHASEBOSSBONUS[0],
+                                        labelsBonus:SINGLEPHASECOMPANIONBOSSBONUS_5[0],
                                         labels:{
                                             bossModifier:{
-                                                IT:[ " In questo scontro {boss.bossUnit@0} ha {boss.bossHealth} PV per Eroe, {boss.bossHadesHardMods@0}." ],
-                                                EN:[ " In this fight, {boss.bossUnit@0} has {boss.bossHealth} HP per Hero, {boss.bossHadesHardMods@0}." ]
+                                                IT:[ " In questo scontro {boss.bossUnit@0} ha {boss.bossHealth} PV per Eroe, {boss.bossHadesHardMods@0}. Ogni Anima Errante ha {boss.companionHealth} PV." ],
+                                                EN:[ " In this fight, {boss.bossUnit@0} has {boss.bossHealth} HP per Hero, {boss.bossHadesHardMods@0}. Each Lingering Soul has {boss.companionHealth} HP." ]
                                             }
                                         }
                                     }
                                 },{
                                     at:BOSSAT[1],
                                     mods:{
-                                        labelsBonus:SINGLEPHASEBOSSBONUS[1],
+                                        labelsBonus:SINGLEPHASECOMPANIONBOSSBONUS_5[1],
                                         labels:{
                                             bossModifier:{
-                                                IT:[ " In questo scontro {boss.bossUnit@0} ha {boss.bossHealth} PV per Eroe, {boss.bossHadesHardMods@0}." ],
-                                                EN:[ " In this fight, {boss.bossUnit@0} has {boss.bossHealth} HP per Hero, {boss.bossHadesHardMods@0}." ]
+                                                IT:[ " In questo scontro {boss.bossUnit@0} ha {boss.bossHealth} PV per Eroe, {boss.bossHadesHardMods@0}. Ogni Anima Errante ha {boss.companionHealth} PV." ],
+                                                EN:[ " In this fight, {boss.bossUnit@0} has {boss.bossHealth} HP per Hero, {boss.bossHadesHardMods@0}. Each Lingering Soul has {boss.companionHealth} HP." ]
                                             }
                                         }
                                     }
                                 },{
                                     at:BOSSAT[2],
                                     mods:{
-                                        labelsBonus:SINGLEPHASEBOSSBONUS[2],
+                                        labelsBonus:SINGLEPHASECOMPANIONBOSSBONUS_5[2],
                                         labels:{
                                             bossModifier:{
-                                                IT:[ " In questo scontro {boss.bossUnit@0} ha {boss.bossHealth} PV per Eroe, {boss.bossHadesHardMods@0}." ],
-                                                EN:[ " In this fight, {boss.bossUnit@0} has {boss.bossHealth} HP per Hero, {boss.bossHadesHardMods@0}." ]
+                                                IT:[ " In questo scontro {boss.bossUnit@0} ha {boss.bossHealth} PV per Eroe, {boss.bossHadesHardMods@0}. Ogni Anima Errante ha {boss.companionHealth} PV." ],
+                                                EN:[ " In this fight, {boss.bossUnit@0} has {boss.bossHealth} HP per Hero, {boss.bossHadesHardMods@0}. Each Lingering Soul has {boss.companionHealth} HP." ]
                                             }
                                         }
                                     }
                                 },{
                                     at:BOSSAT[3],
                                     mods:{
-                                        labelsBonus:SINGLEPHASEBOSSBONUS[3],
+                                        labelsBonus:SINGLEPHASECOMPANIONBOSSBONUS_5[3],
                                         labels:{
                                             bossModifier:{
-                                                IT:[ " In questo scontro {boss.bossUnit@0} ha {boss.bossHealth} PV per Eroe, {boss.bossHadesHardMods@0}." ],
-                                                EN:[ " In this fight, {boss.bossUnit@0} has {boss.bossHealth} HP per Hero, {boss.bossHadesHardMods@0}." ]
+                                                IT:[ " In questo scontro {boss.bossUnit@0} ha {boss.bossHealth} PV per Eroe, {boss.bossHadesHardMods@0}. Ogni Anima Errante ha {boss.companionHealth} PV." ],
+                                                EN:[ " In this fight, {boss.bossUnit@0} has {boss.bossHealth} HP per Hero, {boss.bossHadesHardMods@0}. Each Lingering Soul has {boss.companionHealth} HP." ]
                                             }
                                         }
                                     }
                                 },{
                                     at:BOSSAT[4],
                                     mods:{
-                                        labelsBonus:SINGLEPHASEBOSSBONUS[4],
+                                        labelsBonus:SINGLEPHASECOMPANIONBOSSBONUS_5[4],
                                         labels:{
                                             bossModifier:{
-                                                IT:[ " In questo scontro {boss.bossUnit@0} ha {boss.bossHealth} PV per Eroe, {boss.bossHadesHardMods@0}." ],
-                                                EN:[ " In this fight, {boss.bossUnit@0} has {boss.bossHealth} HP per Hero, {boss.bossHadesHardMods@0}." ]
+                                                IT:[ " In questo scontro {boss.bossUnit@0} ha {boss.bossHealth} PV per Eroe, {boss.bossHadesHardMods@0}. Ogni Anima Errante ha {boss.companionHealth} PV." ],
+                                                EN:[ " In this fight, {boss.bossUnit@0} has {boss.bossHealth} HP per Hero, {boss.bossHadesHardMods@0}. Each Lingering Soul has {boss.companionHealth} HP." ]
                                             }
                                         }
                                     }
@@ -2312,9 +2353,9 @@ ModManager.modules.push(function(){
                                 },
                             },
                             preparation:{
-                                IT:"{boss.bossPreparation}{boss.bossModifier@0} {boss.heroPreparation}{boss.bossHadesPreparation@0}"+
+                                IT:"{boss.bossPreparation}{boss.bossModifier@0} Ogni Anima Errante ha {boss.companionHealth} PV. {boss.heroPreparation}{boss.bossHadesPreparation@0}"+
                                     "<p>Se gli Eroi riescono a sconfiggerlo, Hades {label.bossBeat@0} e la Missione termina con una vittoria.</p>",
-                                EN:"{boss.bossPreparation}{boss.bossModifier@0} {boss.heroPreparation}{boss.bossHadesPreparation@0}"+
+                                EN:"{boss.bossPreparation}{boss.bossModifier@0} Each Lingering Soul has {boss.companionHealth} HP. {boss.heroPreparation}{boss.bossHadesPreparation@0}"+
                                     "<p>If the Heroes manage to defeat Hades, {label.bossBeat@0} and the Quest ends with a victory.</p>"
                             }
                         },{
