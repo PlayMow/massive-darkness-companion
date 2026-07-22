@@ -1722,3 +1722,191 @@ HTML,BODY {
     }
     
 }
+
+/* Dark color scheme */
+
+:root {
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+
+    BODY,
+    .footer {
+        background-color: #35393b;
+    }
+
+    .header {
+        background-color: #262a2b;
+        color:#e2e0d2;
+    }
+
+    .header .settings .items, .noticebar {
+        background-color: #181a1b;
+        color:#c8c3bc;
+    }
+
+    .header .settings {
+        border-color: #35393b;
+    }
+
+    .header .button,
+    .quest .sheetHeader,
+    .quest .title .diamond,
+    .quest .objectivesTitle .diamond, .quest .specialRulesTitle .diamond, .quest .challengesTitle .diamond, .quest .sideQuestTitle .diamond,
+    .quest .mapseparator,
+    .quest .lootRatioRow .perPlayer,
+    .quest .intensity,
+    .quest .symbol.icon,
+    .quest .symbol.token {
+        filter: invert(1);
+    }
+
+    .header SELECT {
+        border-color: #303436;
+        background-color: #2b2a33;
+    }
+
+    .generating {
+        text-shadow: 0px 1px 0px #000;
+    }
+
+    .popupcontainer .popupbox {
+        background-color: #000;
+        border:2px solid #999;
+    }
+
+    .campaignBrowser {
+        background-color: #262a2b;
+    }
+
+    .campaignBrowser .pageLabel {
+        color:#c8c3bc;
+    }
+
+    .coverCampaign .cover {
+        background-color: #262a2b;
+    }
+
+    .quest {
+        color: #e8e6e3;
+        background-color: #181a1b;
+        background-image: none;
+        box-shadow: 0px 0px 5px #000;
+    }
+
+    .quest A, .header A {
+        color: #e8e6e3;
+    }
+
+    .quest .symbol.dice {
+        color: #181a1b;
+    }
+
+    .quest .tokensList,
+    .quest .lootRatio,
+    .campaignProgression {
+        background-color: #35393b;
+    }
+
+    .quest .minimapNodeContent {
+        background-color: #35393b;
+        border-color: #303436;
+        color: #e8e6e3;
+    }
+    
+    .quest.massiverandomness {
+        background-image: linear-gradient(to bottom, rgb(0, 0, 0, 1), rgba(0, 0, 0, 0));
+    }
+
+    .quest .objectivesTitle, .quest .specialRulesTitle, .quest .challengesTitle, .quest .sideQuestTitle {
+        border-color: #303436;
+    }
+
+    @keyframes massiverandomness-text {
+        from { color:#333 }
+        50% { color:#333; text-shadow: 0px -1px 1px rgba(51, 51, 51, 0), 0px 1px 1px rgba(255, 255, 255, 0); }
+        to { color:#000; text-shadow: 0px -1px 1px rgba(51, 51, 51, 1), 0px 1px 1px rgba(255, 255, 255, 1); }
+    }
+
+    .quest.massiverandomness .questHead .title, .quest.massiverandomness .sheetQuestHeader {
+        color: #e8e6e3;
+        text-shadow: 0px -1px 1px #333, 0px 1px 1px #000;
+        animation-name: massiverandomness-text-alt;
+        animation-timing-function: ease-out;
+        animation-duration: 3s;
+    }
+
+    .quest.massiverandomness .sheetHeader {
+        filter: brightness(40%) sepia(40) saturate(40) hue-rotate(13deg);
+        animation-name: massiverandomness-colors;
+        animation-timing-function: ease-out;
+        animation-duration: 3s;
+    }
+
+    .quest.massiverandomness .left.diamond {
+        filter: brightness(40%) sepia(40) saturate(40) hue-rotate(13deg);
+        animation-name: massiverandomness-left;
+        animation-timing-function: ease-out;
+        animation-duration: 3s;
+        transform: rotate(45deg);
+    }
+
+    .quest.massiverandomness .right.diamond {
+        filter: brightness(40%) sepia(40) saturate(40) hue-rotate(13deg);
+        animation-name: massiverandomness-right;
+        animation-timing-function: ease-out;
+        animation-duration: 3s;
+        transform: rotate(-45deg);
+    }
+
+    .quest.massiverandomness .diamond, .quest.massiverandomness .mapSeparator {
+        filter: brightness(40%) sepia(40) saturate(40) hue-rotate(13deg);
+        animation-name: massiverandomness-colors;
+        animation-timing-function: ease-out;
+        animation-duration: 3s;
+    }
+
+    .tile .container {
+        border-color: #000;
+    }
+
+    .tile {
+        background-color: #373a3b;
+    }
+
+    .tile .cell.room .inner {
+        background-color: #373b3d;
+    }
+
+    .tile .cell.dark .background {
+        background-color: #070707;
+    }
+
+    .tile .cell.room .inner {
+        background-color: #73787a;
+    }
+
+    .tile .cell.lava .background {
+        border: 2px solid #f33;
+    }
+
+    .tile .cell.crystal .background {
+        border: 2px solid #33f;
+    }
+
+    .tile .cell.light .background, .tile .cell.crystal .background {
+        background-color: #fff;
+    }
+
+    .tile .cell.water .background  {
+        border: 2px dashed #7676ff;
+    }
+    
+}
+
+/* Dark Reader hack */
+
+HTML[data-darkreader-scheme=dark] .quest {
+    background-image: none;
+}
