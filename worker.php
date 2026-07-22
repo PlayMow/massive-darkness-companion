@@ -84,7 +84,8 @@ function fromCache(evt) {
   return caches.open(CACHE).then(function (cache) {
     return cache.match(evt.request).then(function (matching) {
       return matching || fetch(evt.request).then(function(response) {
-          cache.put(evt.request, response.clone());
+          if (/^https?:$/i.test(new URL(evt.request.url).protocol))
+            cache.put(evt.request, response.clone());
           return response;
         });
     });
@@ -94,6 +95,7 @@ function fromCache(evt) {
 function update(request) {
   return caches.open(CACHE).then(function (cache) {
     return fetch(request).then(function (response) {
+      if (!/^https?:$/i.test(new URL(request.url).protocol)) return;
       return cache.put(request, response);
     });
   });
