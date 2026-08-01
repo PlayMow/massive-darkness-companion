@@ -14,7 +14,7 @@ ModManager.modules.push(function(){
                     type:"globalLabels",
                     data:{
                         boxZcEternalEmpire:{
-                            EN:"from Zombicide: Eternal Empire",
+                            EN:"from Zombicide: Eternal Empire",ES:"de Zombicide: Eternal Empire",
                             IT:"da Zombicide: Eternal Empire"
                         }
                     }
