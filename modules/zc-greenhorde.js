@@ -13,7 +13,7 @@ ModManager.modules.push(function(){
                     type:"globalLabels",
                     data:{
                         boxZcGreenHorde:{
-                            EN:"from Zombicide: Green Horde",
+                            EN:"from Zombicide: Green Horde",ES:"de Zombicide: Green Horde",
                             IT:"da Zombicide: Green Horde"
                         }
                     }

@@ -13,7 +13,7 @@ ModManager.modules.push(function(){
                     type:"globalLabels",
                     data:{
                         boxZcFriendFoes:{
-                            EN:"from Zombicide: Friends and Foes",
+                            EN:"from Zombicide: Friends and Foes",ES:"de Zombicide: Friends and Foes",
                             IT:"da Zombicide: Friends and Foes"
                         }
                     }

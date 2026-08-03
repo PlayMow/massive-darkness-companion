@@ -14,7 +14,7 @@ ModManager.modules.push(function(){
                     type:"globalLabels",
                     data:{
                         boxMd2CrystalLava:{
-                            EN:"from MD: A Quest of Crystal &amp; Lava",
+                            EN:"from MD: A Quest of Crystal &amp; Lava",ES:"de MD: Una Misión de Lava y Cristales",
                             IT:"da MD: Una Missione di Lava e Cristalli"
                         }
                     }

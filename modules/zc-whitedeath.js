@@ -14,7 +14,7 @@ ModManager.modules.push(function(){
                     type:"globalLabels",
                     data:{
                         boxZcWhiteDeath:{
-                            EN:"from Zombicide: White Death",
+                            EN:"from Zombicide: White Death",ES:"de Zombicide: White Death",
                             IT:"da Zombicide: White Death"
                         }
                     }
