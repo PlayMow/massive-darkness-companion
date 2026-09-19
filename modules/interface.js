@@ -632,9 +632,10 @@ ModManager.modules.push(function(){
                         },
                         labels:{                            
                             toolName:{
-                                IT:"Massive Randomness 2",
-                                EN:"Massive Randomness 2",
-                                ES:"Massive Randomness 2"
+                                IT:"Massive Darkness Companion",
+                                EN:"Massive Darkness Companion",
+                                ES:"Massive Darkness Companion",
+                                FR:"Massive Darkness Companion"
                             },
                             toolDescription:{
                                 IT:"Un generatore casuale di avventure per Massive Darkness 2",
