@@ -61,6 +61,39 @@ const ScenarioAdapter = (() => {
 
     };
 
+    const TILE_SETS = {
+
+        hellscape: {
+            label: "Massive Darkness 2 — Hellscape",
+            module: "md2-hellscape",
+            from: "boxMd2CoreBox"
+        },
+
+        heavenfall: {
+            label: "Massive Darkness 2 — Heavenfall",
+            module: "md2-heavenfall",
+            from: "boxMd2Heavenfall"
+        },
+
+        "rainbow-crossing": {
+            label: "Massive Darkness 2 — Rainbow Crossing",
+            module: "md2-rainbowcrossing",
+            from: "boxMd2RainbowCrossing"
+        },
+
+        "crystal-lava": {
+            label: "A Quest of Crystal & Lava",
+            module: "md2-crystallava-cl",
+            from: "boxMd2CrystalLava"
+        },
+
+        "massive-darkness-1": {
+            label: "Massive Darkness 1",
+            module: "md1-base",
+            from: "massiveDarkness1"
+        }
+
+    };
 
     /*
      * v0.1 :
@@ -118,6 +151,65 @@ const ScenarioAdapter = (() => {
 
     }
 
+    function getTileSets(
+        scenario
+    ) {
+
+        const ids =
+            scenario
+                ?.dungeon
+                ?.tiles
+                ?.sets
+            || [
+                "hellscape"
+            ];
+
+
+        const sets =
+            ids
+                .map(
+                    id =>
+                        TILE_SETS[id]
+                )
+                .filter(Boolean);
+
+
+        if (!sets.length) {
+
+            throw new Error(
+                "Aucun set de tuiles valide n'a été sélectionné."
+            );
+
+        }
+
+
+        return {
+
+            ids,
+
+            sets,
+
+            modules: [
+                ...new Set(
+                    sets.map(
+                        set =>
+                            set.module
+                    )
+                )
+            ],
+
+            froms: [
+                ...new Set(
+                    sets.map(
+                        set =>
+                            set.from
+                    )
+                )
+            ]
+
+        };
+
+    }
 
     function normalizeSize(size) {
 
@@ -385,11 +477,11 @@ const ScenarioAdapter = (() => {
 
 
     /*
-     * Charge uniquement les ressources dont nous avons besoin.
-     */
+    * Charge uniquement les ressources dont nous avons besoin.
+    */
     function loadResources(
         scenario,
-        environment
+        tileSets
     ) {
 
         const size =
@@ -398,23 +490,44 @@ const ScenarioAdapter = (() => {
             );
 
 
+        const needs =
+            new Set([
+
+                "bridge-default-twoexits",
+
+                "maps-default",
+
+                `maps-size-${size}`,
+
+                "maps-default-notuniform",
+
+                "quests-default"
+
+            ]);
+
+
+        /*
+        * Ajoute tous les modules correspondant
+        * aux sets de tuiles sélectionnés.
+        */
+        tileSets
+            .modules
+            .forEach(
+                module => {
+
+                    needs.add(
+                        module
+                    );
+
+                }
+            );
+
+
         const resources =
             ModManager.load({
 
                 needs: [
-
-                    "bridge-default-twoexits",
-
-                    "maps-default",
-
-                    `maps-size-${size}`,
-
-                    "maps-default-uniform",
-
-                    "quests-default",
-
-                    environment.module
-
+                    ...needs
                 ],
 
                 excludes: []
@@ -428,47 +541,35 @@ const ScenarioAdapter = (() => {
 
 
     /*
-     * Important :
-     *
-     * maps-default charge également Hellscape car MR2
-     * en a besoin comme base.
-     *
-     * Nous filtrons donc ici les tuiles pour que,
-     * par exemple, "Rainbow Crossing" signifie
-     * réellement "uniquement Rainbow Crossing".
-     */
+    * maps-default charge Hellscape comme dépendance.
+    *
+    * Nous retirons donc toutes les tuiles physiques
+    * appartenant à des sets que l'utilisateur
+    * n'a pas sélectionnés.
+    *
+    * En mode "Mélange libre", nous ne filtrons
+    * volontairement PAS les skins.
+    */
     function filterEnvironmentTiles(
         resources,
-        environment
+        tileSets
     ) {
+
+        const allowedFrom =
+            new Set(
+                tileSets.froms
+            );
+
 
         resources.tiles =
             (resources.tiles || [])
 
                 .filter(
                     tile =>
-                        tile.from ===
-                        environment.from
-                )
 
-                .map(tile => {
-
-                    tile.sides =
-                        tile.sides.filter(
-                            side =>
-                                side.skins.includes(
-                                    environment.skin
-                                )
-                        );
-
-
-                    return tile;
-
-                })
-
-                .filter(
-                    tile =>
-                        tile.sides.length > 0
+                        allowedFrom.has(
+                            tile.from
+                        )
                 );
 
     }
@@ -838,7 +939,7 @@ const ScenarioAdapter = (() => {
     function validateTileAvailability(
         resources,
         result,
-        environment
+        tileSets
     ) {
 
         const requirements =
@@ -867,7 +968,7 @@ const ScenarioAdapter = (() => {
 
             throw new Error(
 
-                `${environment.label} n'offre pas suffisamment de tuiles ` +
+                `Les sets de tuiles sélectionnés n'offrent pas suffisamment de tuiles compatibles pour cette taille de donjon.` +
                 `compatibles pour cette taille de donjon.\n\n` +
 
                 `Cette configuration demande ${requirements.length} ` +
@@ -937,7 +1038,7 @@ const ScenarioAdapter = (() => {
 
     function createAttempt(
         scenario,
-        environment,
+        tileSets,
         baseSeed,
         attempt
     ) {
@@ -945,7 +1046,7 @@ const ScenarioAdapter = (() => {
         const resources =
             loadResources(
                 scenario,
-                environment
+                tileSets
             );
 
 
@@ -966,7 +1067,7 @@ const ScenarioAdapter = (() => {
 
         filterEnvironmentTiles(
             resources,
-            environment
+            tileSets
         );
 
 
@@ -1046,7 +1147,7 @@ const ScenarioAdapter = (() => {
         validateTileAvailability(
             resources,
             result,
-            environment
+            tileSets
         );
 
 
@@ -1082,8 +1183,8 @@ const ScenarioAdapter = (() => {
             );
 
 
-        const environment =
-            getEnvironment(
+        const tileSets =
+            getTileSets(
                 scenario
             );
 
@@ -1103,7 +1204,7 @@ const ScenarioAdapter = (() => {
             const generated =
                 createAttempt(
                     scenario,
-                    environment,
+                    tileSets,
                     baseSeed,
                     attempt
                 );
@@ -1122,7 +1223,7 @@ const ScenarioAdapter = (() => {
 
                     scenario,
 
-                    environment,
+                    tileSets,
 
                     warnings,
 
