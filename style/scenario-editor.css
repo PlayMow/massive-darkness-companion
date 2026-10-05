@@ -1,0 +1,415 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --background: #161616;
+    --surface: #202020;
+    --surface-light: #292929;
+    --border: #3a3a3a;
+
+    --text: #f2f0eb;
+    --text-muted: #aaa69f;
+
+    --accent: #c89a52;
+    --accent-hover: #ddb36d;
+
+    --danger: #ba5a5a;
+
+    --radius: 14px;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    background: var(--background);
+    color: var(--text);
+
+    font-family: "Seshat", Arial, sans-serif;
+}
+
+
+/* HEADER */
+
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 28px 40px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.editor-header h1 {
+    margin: 2px 0 0;
+
+    font-family: "Ferrum", sans-serif;
+    font-size: 40px;
+    font-weight: normal;
+}
+
+.editor-kicker {
+    color: var(--accent);
+    font-size: 12px;
+    letter-spacing: 2px;
+}
+
+
+/* LAYOUT */
+
+.editor-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 24px;
+
+    max-width: 1500px;
+    margin: 0 auto;
+
+    padding: 32px 40px 120px;
+}
+
+#scenario-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+
+/* PANELS */
+
+.editor-panel {
+    padding: 26px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    margin-bottom: 24px;
+}
+
+.section-heading > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 38px;
+    height: 38px;
+
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+
+    font-size: 12px;
+}
+
+.section-heading h2 {
+    margin: 0 0 3px;
+
+    font-family: "Ferrum", sans-serif;
+    font-size: 24px;
+    font-weight: normal;
+}
+
+.section-heading p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.section-heading--action {
+    justify-content: space-between;
+}
+
+.section-heading--action > .section-heading {
+    margin: 0;
+}
+
+
+/* FORM */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.form-grid--component {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    color: var(--text-muted);
+
+    font-size: 13px;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+
+    padding: 12px 14px;
+
+    background: #171717;
+    color: var(--text);
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 14px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+input:disabled,
+select:disabled {
+    opacity: .4;
+}
+
+textarea {
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.field-full {
+    grid-column: 1 / -1;
+}
+
+
+/* CHECKBOX */
+
+.checkbox-field {
+    flex-direction: row;
+    align-items: flex-start;
+
+    padding: 12px 14px;
+
+    background: #171717;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.checkbox-field input {
+    width: auto;
+    margin-top: 4px;
+}
+
+.checkbox-field span {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.checkbox-field strong {
+    color: var(--text);
+    font-weight: normal;
+}
+
+.checkbox-field small {
+    color: var(--text-muted);
+}
+
+
+/* COMPONENTS */
+
+#components-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.component-card {
+    padding: 20px;
+
+    background: var(--surface-light);
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.component-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 18px;
+}
+
+
+/* BUTTONS */
+
+button,
+.secondary-button {
+    cursor: pointer;
+
+    padding: 11px 16px;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 13px;
+
+    text-decoration: none;
+}
+
+.primary-button {
+    background: var(--accent);
+    color: #151515;
+
+    border: 1px solid var(--accent);
+}
+
+.primary-button:hover {
+    background: var(--accent-hover);
+}
+
+.secondary-button {
+    background: transparent;
+    color: var(--text);
+
+    border: 1px solid var(--border);
+}
+
+.secondary-button:hover {
+    border-color: var(--accent);
+}
+
+.danger-button {
+    padding: 7px 10px;
+
+    color: #e3a2a2;
+    background: transparent;
+
+    border: 1px solid #654040;
+}
+
+.danger-button:hover {
+    background: #402727;
+}
+
+
+/* JSON PREVIEW */
+
+.preview-column {
+    min-width: 0;
+}
+
+.preview-panel {
+    position: sticky;
+    top: 20px;
+}
+
+#json-preview {
+    max-height: 70vh;
+    overflow: auto;
+
+    margin: 0;
+    padding: 16px;
+
+    background: #111;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    color: #d6d2ca;
+
+    font-family: Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+
+    white-space: pre-wrap;
+}
+
+
+/* FOOTER */
+
+.editor-actions {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 16px 40px;
+
+    background: rgba(22, 22, 22, .96);
+
+    border-top: 1px solid var(--border);
+}
+
+.editor-actions__buttons {
+    display: flex;
+    gap: 10px;
+}
+
+#editor-status {
+    color: var(--accent);
+    font-size: 13px;
+}
+
+
+/* TABLET */
+
+@media (max-width: 1050px) {
+
+    .editor-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .preview-panel {
+        position: static;
+    }
+
+    .form-grid--component {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .editor-header {
+        padding: 20px;
+    }
+
+    .editor-layout {
+        padding: 20px 20px 130px;
+    }
+
+    .form-grid,
+    .form-grid--component {
+        grid-template-columns: 1fr;
+    }
+
+    .field-full {
+        grid-column: auto;
+    }
+
+    .editor-actions {
+        padding: 12px 20px;
+    }
+
+}

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Scenario Editor — Massive Darkness Companion</title>
+
+    <link rel="stylesheet" href="style/Ferrum/stylesheet.css">
+    <link rel="stylesheet" href="style/Seshat/stylesheet.css">
+    <link rel="stylesheet" href="style/scenario-editor.css">
+
+    <script src="js/scenario-editor.js" defer></script>
+</head>
+
+<body>
+
+    <header class="editor-header">
+
+        <div>
+            <div class="editor-kicker">MASSIVE DARKNESS COMPANION</div>
+            <h1>Scenario Editor</h1>
+        </div>
+
+        <a class="secondary-button" href="index.html">
+            Retour au générateur
+        </a>
+
+    </header>
+
+    <main class="editor-layout">
+
+        <form id="scenario-form">
+
+            <section class="editor-panel">
+
+                <div class="section-heading">
+                    <span>01</span>
+
+                    <div>
+                        <h2>Scénario</h2>
+                        <p>Informations générales de la quête.</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+
+                    <label>
+                        Campagne
+                        <input
+                            id="scenario-campaign"
+                            type="text"
+                            placeholder="Ex. La Couronne du Roi Mort"
+                        >
+                    </label>
+
+                    <label>
+                        Chapitre
+                        <input
+                            id="scenario-chapter"
+                            type="number"
+                            min="1"
+                            value="1"
+                        >
+                    </label>
+
+                    <label class="field-full">
+                        Titre de la quête
+                        <input
+                            id="scenario-title"
+                            type="text"
+                            placeholder="Ex. La Crypte oubliée"
+                        >
+                    </label>
+
+                    <label class="field-full">
+                        Introduction / histoire
+                        <textarea
+                            id="scenario-story"
+                            rows="7"
+                            placeholder="Les inscriptions retrouvées dans les catacombes indiquent que..."
+                        ></textarea>
+                    </label>
+
+                </div>
+
+            </section>
+
+
+            <section class="editor-panel">
+
+                <div class="section-heading">
+                    <span>02</span>
+
+                    <div>
+                        <h2>Donjon</h2>
+                        <p>Contraintes générales transmises au générateur.</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+
+                    <label>
+                        Taille du donjon
+
+                        <select id="dungeon-size">
+                            <option value="small">Petit</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="large">Grand</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Environnement des tuiles
+                            <select id="tile-environment"></select>
+                    </label>
+
+                    <label class="checkbox-field">
+
+                        <input
+                            id="dungeon-crawling"
+                            type="checkbox"
+                            checked
+                        >
+
+                        <span>
+                            <strong>Mode exploration</strong>
+                            <small>Masquer le contenu des salles jusqu'à leur révélation.</small>
+                        </span>
+
+                    </label>
+
+                    <label class="checkbox-field">
+
+                        <input
+                            id="boss-enabled"
+                            type="checkbox"
+                        >
+
+                        <span>
+                            <strong>Boss présent</strong>
+                            <small>La quête nécessite une confrontation avec un Boss.</small>
+                        </span>
+
+                    </label>
+
+                    <label>
+                        Sélection du Boss
+
+                        <select id="boss-mode">
+                            <option value="random">Boss aléatoire</option>
+                            <option value="fixed">Boss imposé</option>
+                        </select>
+                    </label>
+
+                    <label class="field-full">
+                        Nom du Boss
+
+                        <input
+                            id="boss-name"
+                            type="text"
+                            placeholder="Ex. Gardien de la Crypte"
+                        >
+                    </label>
+
+                </div>
+
+            </section>
+
+
+            <section class="editor-panel">
+
+                <div class="section-heading section-heading--action">
+
+                    <div class="section-heading">
+
+                        <span>03</span>
+
+                        <div>
+                            <h2>Composants du scénario</h2>
+                            <p>Jetons et éléments que le donjon doit contenir.</p>
+                        </div>
+
+                    </div>
+
+                    <button
+                        id="add-component"
+                        class="primary-button"
+                        type="button"
+                    >
+                        + Ajouter un élément
+                    </button>
+
+                </div>
+
+                <div id="components-list"></div>
+
+            </section>
+
+        </form>
+
+
+        <aside class="preview-column">
+
+            <section class="editor-panel preview-panel">
+
+                <div class="section-heading">
+
+                    <span>JSON</span>
+
+                    <div>
+                        <h2>Définition du scénario</h2>
+                        <p>Données générées par l'éditeur.</p>
+                    </div>
+
+                </div>
+
+                <pre id="json-preview"></pre>
+
+            </section>
+
+        </aside>
+
+    </main>
+
+
+    <footer class="editor-actions">
+
+        <div id="editor-status"></div>
+
+        <div class="editor-actions__buttons">
+
+            <button
+                id="save-draft"
+                class="secondary-button"
+                type="button"
+            >
+                Enregistrer le brouillon
+            </button>
+
+            <button
+                id="export-scenario"
+                class="primary-button"
+                type="button"
+            >
+                Exporter le scénario
+            </button>
+
+        </div>
+
+    </footer>
+
+</body>
+</html>
