@@ -413,3 +413,64 @@ button,
     }
 
 }
+
+
+/* TILE SETS */
+
+.tile-sets-field {
+    margin: 0;
+    padding: 16px;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.tile-sets-field legend {
+    padding: 0 8px;
+
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.tile-sets-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.tile-set-option {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 14px;
+
+    background: #171717;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    cursor: pointer;
+}
+
+.tile-set-option:hover {
+    border-color: var(--accent);
+}
+
+.tile-set-option input {
+    width: auto;
+    margin: 0;
+}
+
+.tile-set-option span {
+    color: var(--text);
+}
+
+@media (max-width: 700px) {
+
+    .tile-sets-grid {
+        grid-template-columns: 1fr;
+    }
+
+}

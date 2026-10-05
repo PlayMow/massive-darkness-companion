@@ -109,9 +109,24 @@ const ScenarioEditor = (() => {
             size: "normal",
 
             tiles: {
+
+                sets: [
+                    "hellscape"
+                ],
+
+                mixMode: "mixed",
+
+                /*
+                * Compatibilité temporaire avec
+                * Scenario Adapter v0.1.
+                */
+
                 environment: "hellscape-light",
+
                 module: "md2-hellscape",
+
                 skin: "light"
+
             },
 
             dungeonCrawling: true,
@@ -496,19 +511,99 @@ const ScenarioEditor = (() => {
 
     }
 
+    function populateTileConfiguration() {
+
+        const setsContainer =
+            document.getElementById(
+                "tile-sets-list"
+            );
+
+
+        setsContainer.innerHTML =
+
+            Object
+                .values(
+                    ScenarioCatalog.TILE_SETS
+                )
+
+                .map(
+                    set => `
+
+                        <label class="tile-set-option">
+
+                            <input
+                                type="checkbox"
+                                name="tile-set"
+                                value="${set.id}"
+                            >
+
+                            <span>
+                                ${set.label}
+                            </span>
+
+                        </label>
+
+                    `
+                )
+
+                .join("");
+
+
+        const mixModeSelect =
+            document.getElementById(
+                "tile-mix-mode"
+            );
+
+
+        mixModeSelect.innerHTML =
+
+            Object
+                .values(
+                    ScenarioCatalog.MIX_MODES
+                )
+
+                .map(
+                    mode => `
+
+                        <option value="${mode.id}">
+                            ${mode.label}
+                        </option>
+
+                    `
+                )
+
+                .join("");
+
+    }
+
     function readScenario() {
 
-        const selectedEnvironmentId =
-            document
-                .getElementById("tile-environment")
-                .value;
+        const selectedTileSets = [
+
+            ...document.querySelectorAll(
+                'input[name="tile-set"]:checked'
+            )
+
+        ].map(
+            input =>
+                input.value
+        );
 
 
-        const selectedEnvironment =
+        /*
+        * Compatibilité temporaire avec
+        * l'ancien Scenario Adapter.
+        *
+        * Tant que le nouvel Adapter multi-sets
+        * n'est pas installé, le Playtest utilisera
+        * Hellscape — Donjon.
+        */
+
+        const legacyEnvironment =
             TILE_ENVIRONMENTS.find(
                 environment =>
-                    environment.id === selectedEnvironmentId
-            ) || TILE_ENVIRONMENTS[0];
+                    environment.id === "hellscape-light"
+            );
         
         return {
 
@@ -558,14 +653,30 @@ const ScenarioEditor = (() => {
 
                 tiles: {
 
+                    sets:
+                        selectedTileSets,
+
+                    mixMode:
+                        document
+                            .getElementById(
+                                "tile-mix-mode"
+                            )
+                            .value,
+
+
+                    /*
+                    * TEMPORAIRE :
+                    * utilisé uniquement par l'Adapter v0.1.
+                    */
+
                     environment:
-                        selectedEnvironment.id,
+                        legacyEnvironment.id,
 
                     module:
-                        selectedEnvironment.module,
+                        legacyEnvironment.module,
 
                     skin:
-                        selectedEnvironment.skin
+                        legacyEnvironment.skin
 
                 },
 
@@ -719,11 +830,40 @@ const ScenarioEditor = (() => {
             scenario.dungeon?.size || "normal";
 
 
+        const selectedSets =
+            scenario
+                .dungeon
+                ?.tiles
+                ?.sets
+                || [
+                    "hellscape"
+                ];
+
+
         document
-            .getElementById("tile-environment")
+            .querySelectorAll(
+                'input[name="tile-set"]'
+            )
+            .forEach(input => {
+
+                input.checked =
+                    selectedSets.includes(
+                        input.value
+                    );
+
+            });
+
+
+        document
+            .getElementById(
+                "tile-mix-mode"
+            )
             .value =
-            scenario.dungeon?.tiles?.environment
-            || "hellscape-light";
+            scenario
+                .dungeon
+                ?.tiles
+                ?.mixMode
+                || "mixed";
 
 
         document
@@ -1026,7 +1166,7 @@ const ScenarioEditor = (() => {
 
     function initialize() {
 
-        populateTileEnvironments();
+        populateTileConfiguration();
 
         document
             .getElementById("add-component")
