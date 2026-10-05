@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Scenario Playtest — Massive Darkness Companion
+    </title>
+
+
+    <!-- Styles MR2 nécessaires pour dessiner la map -->
+
+    <link
+        rel="stylesheet"
+        href="style/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style/Ferrum/stylesheet.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style/Seshat/stylesheet.css"
+    >
+
+
+    <!-- Notre interface -->
+
+    <link
+        rel="stylesheet"
+        href="style/scenario-playtest.css"
+    >
+
+
+    <!-- Moteur MR2 -->
+
+    <script
+        src="js/modmanager.js"
+        defer
+    ></script>
+
+    <script
+        src="js/labels.js"
+        defer
+    ></script>
+
+    <script
+        src="js/questgenerator.js"
+        defer
+    ></script>
+
+    <script
+        src="js/mapgenerator.js"
+        defer
+    ></script>
+
+    <script
+        src="js/maprenderer.js"
+        defer
+    ></script>
+
+
+    <!-- Modules de tuiles -->
+
+    <script
+        src="modules/md1-base.js"
+        defer
+    ></script>
+
+    <script
+        src="modules/md2-hellscape.js"
+        defer
+    ></script>
+
+    <script
+        src="modules/md2-heavenfall.js"
+        defer
+    ></script>
+
+    <script
+        src="modules/md2-rainbowcrossing.js"
+        defer
+    ></script>
+
+    <script
+        src="modules/md2-crystallava.js"
+        defer
+    ></script>
+
+
+    <!-- Configuration MR2 -->
+
+    <script
+        src="modules/maps-default.js"
+        defer
+    ></script>
+
+    <script
+        src="modules/quests-default.js"
+        defer
+    ></script>
+
+
+    <!-- Notre couche -->
+
+    <script
+        src="js/scenario-adapter.js"
+        defer
+    ></script>
+
+    <script
+        src="js/scenario-playtest.js"
+        defer
+    ></script>
+
+</head>
+
+
+<body>
+
+    <header class="playtest-header">
+
+        <div>
+
+            <div class="playtest-kicker">
+                MASSIVE DARKNESS COMPANION
+            </div>
+
+            <h1>
+                Scenario Playtest
+            </h1>
+
+        </div>
+
+
+        <a
+            href="scenario-editor.html"
+            class="secondary-button"
+        >
+            Retour à l'éditeur
+        </a>
+
+    </header>
+
+
+    <main class="playtest-layout">
+
+        <section class="playtest-panel">
+
+            <div class="scenario-heading">
+
+                <div>
+
+                    <div
+                        id="scenario-campaign"
+                        class="scenario-campaign"
+                    ></div>
+
+                    <h2 id="scenario-title">
+                        Scénario
+                    </h2>
+
+                </div>
+
+
+                <button
+                    id="regenerate-map"
+                    class="primary-button"
+                    type="button"
+                >
+                    Régénérer le donjon
+                </button>
+
+            </div>
+
+
+            <p
+                id="scenario-story"
+                class="scenario-story"
+            ></p>
+
+
+            <div
+                id="scenario-meta"
+                class="scenario-meta"
+            ></div>
+
+        </section>
+
+
+        <section
+            id="warnings-panel"
+            class="playtest-panel warnings-panel"
+            hidden
+        >
+
+            <h3>
+                Informations v0.1
+            </h3>
+
+            <div id="warnings"></div>
+
+        </section>
+
+
+        <section
+            id="error-panel"
+            class="playtest-panel error-panel"
+            hidden
+        >
+
+            <h3>
+                Impossible de générer le donjon
+            </h3>
+
+            <pre id="error-message"></pre>
+
+        </section>
+
+
+        <section
+            id="map-panel"
+            class="playtest-panel"
+        >
+
+            <div class="map-header">
+
+                <div>
+
+                    <h3>
+                        Donjon généré
+                    </h3>
+
+                    <div id="generation-data"></div>
+
+                </div>
+
+            </div>
+
+
+            <!--
+                La classe quest est volontaire :
+                plusieurs styles natifs de MR2
+                en dépendent.
+            -->
+
+            <div class="quest map-shell">
+
+                <div
+                    id="minimap"
+                    class="miniMap"
+                ></div>
+
+                <div
+                    id="map"
+                    class="map displayonly"
+                ></div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

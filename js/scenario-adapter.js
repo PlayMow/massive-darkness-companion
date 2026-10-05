@@ -1,0 +1,1158 @@
+const ScenarioAdapter = (() => {
+
+    const MAX_ATTEMPTS = 80;
+    const SEED_RANGE = 1000000;
+
+
+    /*
+     * Correspondance entre notre Scenario Editor
+     * et les ressources existantes de MR2.
+     */
+    const ENVIRONMENTS = {
+
+        "hellscape-light": {
+            label: "Hellscape — Donjon",
+            module: "md2-hellscape",
+            skin: "light",
+            from: "boxMd2CoreBox"
+        },
+
+        "hellscape-red": {
+            label: "Hellscape — Enfer",
+            module: "md2-hellscape",
+            skin: "red",
+            from: "boxMd2CoreBox"
+        },
+
+        "heavenfall": {
+            label: "Heavenfall — Paradis",
+            module: "md2-heavenfall",
+            skin: "heaven",
+            from: "boxMd2Heavenfall"
+        },
+
+        "rainbow-crossing": {
+            label: "Rainbow Crossing",
+            module: "md2-rainbowcrossing",
+            skin: "rainbow",
+            from: "boxMd2RainbowCrossing"
+        },
+
+        "crystal": {
+            label: "A Quest of Crystal & Lava — Cristal",
+            module: "md2-crystallava-cl",
+            skin: "crystal",
+            from: "boxMd2CrystalLava"
+        },
+
+        "lava": {
+            label: "A Quest of Crystal & Lava — Lave",
+            module: "md2-crystallava-cl",
+            skin: "lava",
+            from: "boxMd2CrystalLava"
+        },
+
+        "massive-darkness-1": {
+            label: "Massive Darkness 1",
+            module: "md1-base",
+            skin: "light",
+            from: "massiveDarkness1"
+        }
+
+    };
+
+
+    /*
+     * v0.1 :
+     * seuls ces deux jetons personnalisés sont encore supportés.
+     */
+    const SUPPORTED_TOKENS = new Set([
+        "objective",
+        "corruption"
+    ]);
+
+
+    /*
+     * Position relative dans le donjon.
+     *
+     * 0 = proche du départ
+     * 1 = très éloigné
+     */
+    const DISTANCE_MAP = {
+
+        near: 0.15,
+
+        middle: 0.50,
+
+        far: 0.80,
+
+        farthest: 1
+
+    };
+
+
+    function getEnvironment(scenario) {
+
+        const id =
+            scenario?.dungeon?.tiles?.environment
+            || "hellscape-light";
+
+
+        const environment =
+            ENVIRONMENTS[id];
+
+
+        if (!environment) {
+
+            throw new Error(
+                `Environnement inconnu : ${id}`
+            );
+
+        }
+
+
+        return {
+            id,
+            ...environment
+        };
+
+    }
+
+
+    function normalizeSize(size) {
+
+        if (
+            size === "small" ||
+            size === "normal" ||
+            size === "large"
+        ) {
+            return size;
+        }
+
+
+        return "normal";
+
+    }
+
+
+    function createSeed() {
+
+        return (
+            Math.floor(
+                Math.random() * SEED_RANGE
+            ) + 1
+        );
+
+    }
+
+
+    function createMapSeed(
+        baseSeed,
+        attempt
+    ) {
+
+        return (
+            (
+                baseSeed +
+                ((attempt - 1) * 104729)
+            )
+            % SEED_RANGE
+        ) + 1;
+
+    }
+
+
+    /*
+     * Validation des fonctions que notre v0.1
+     * sait réellement gérer.
+     */
+    function validateScenario(scenario) {
+
+        const errors = [];
+        const warnings = [];
+
+
+        if (!scenario) {
+
+            errors.push(
+                "Aucun scénario n'a été fourni."
+            );
+
+        }
+
+
+        if (!scenario?.dungeon) {
+
+            errors.push(
+                "La configuration du donjon est absente."
+            );
+
+        }
+
+
+        const components =
+            scenario?.components || [];
+
+
+        components.forEach(component => {
+
+            if (
+                !SUPPORTED_TOKENS.has(
+                    component.tokenType
+                )
+            ) {
+
+                warnings.push(
+                    `Le composant "${component.role || component.tokenType}" ` +
+                    `n'est pas encore géré par Scenario Adapter v0.1.`
+                );
+
+            }
+
+
+            if (
+                SUPPORTED_TOKENS.has(
+                    component.tokenType
+                ) &&
+                component.placement !== "room"
+            ) {
+
+                errors.push(
+                    `"${component.role || component.tokenType}" : ` +
+                    `la v0.1 supporte uniquement le placement dans les salles.`
+                );
+
+            }
+
+
+            if (
+                SUPPORTED_TOKENS.has(
+                    component.tokenType
+                ) &&
+                component.distribution !== "separate"
+            ) {
+
+                errors.push(
+                    `"${component.role || component.tokenType}" : ` +
+                    `la v0.1 supporte uniquement "Salles / zones différentes".`
+                );
+
+            }
+
+
+            if (
+                Number(component.quantity) < 1
+            ) {
+
+                errors.push(
+                    `"${component.role || component.tokenType}" possède une quantité invalide.`
+                );
+
+            }
+
+        });
+
+
+        if (
+            scenario?.dungeon?.boss?.enabled
+        ) {
+
+            warnings.push(
+                "Le Boss est défini dans le scénario, " +
+                "mais son placement n'est pas encore géré en v0.1."
+            );
+
+        }
+
+
+        if (errors.length) {
+
+            throw new Error(
+                "Scenario Adapter v0.1 :\n\n" +
+                errors
+                    .map(error => `• ${error}`)
+                    .join("\n")
+            );
+
+        }
+
+
+        return warnings;
+
+    }
+
+
+    /*
+     * On construit une quête technique minimale.
+     *
+     * Son seul but est de demander à QuestGenerator
+     * de produire un mapConfig valide avec les règles
+     * natives de Massive Randomness 2.
+     */
+    function createTechnicalQuest(
+        scenario
+    ) {
+
+        const title =
+            scenario.title ||
+            "Scénario personnalisé";
+
+
+        const story =
+            scenario.story || "";
+
+
+        return {
+
+            by: {
+                EN: "Massive Darkness Companion",
+                FR: "Massive Darkness Companion"
+            },
+
+            suggestedTilesCount:
+                scenario.dungeon.size === "small"
+                    ? 3
+                    : scenario.dungeon.size === "large"
+                        ? 5
+                        : 4,
+
+            versions: [
+
+                {
+
+                    labels: [
+                        []
+                    ],
+
+                    title: [
+                        {
+                            EN: title,
+                            FR: title
+                        }
+                    ],
+
+                    story: [
+                        {
+                            EN: story,
+                            FR: story
+                        }
+                    ],
+
+                    rules: [],
+
+                    /*
+                     * pathToRooms est volontaire :
+                     * cette structure offre des salles
+                     * intéressantes pour nos objectifs.
+                     */
+                    map: [
+
+                        {
+
+                            structure: [
+                                "path"
+                            ],
+
+                            difficulty: [
+                                "default"
+                            ],
+
+                            roomLimits: [
+                                "default"
+                            ],
+
+                            lootRatio: [
+                                "default"
+                            ],
+
+                            corridors: [
+                                "default"
+                            ]
+
+                        }
+
+                    ],
+
+                    boss: false
+
+                }
+
+            ]
+
+        };
+
+    }
+
+
+    /*
+     * Charge uniquement les ressources dont nous avons besoin.
+     */
+    function loadResources(
+        scenario,
+        environment
+    ) {
+
+        const size =
+            normalizeSize(
+                scenario.dungeon.size
+            );
+
+
+        const resources =
+            ModManager.load({
+
+                needs: [
+
+                    "bridge-default-twoexits",
+
+                    "maps-default",
+
+                    `maps-size-${size}`,
+
+                    "maps-default-uniform",
+
+                    "quests-default",
+
+                    environment.module
+
+                ],
+
+                excludes: []
+
+            });
+
+
+        return resources;
+
+    }
+
+
+    /*
+     * Important :
+     *
+     * maps-default charge également Hellscape car MR2
+     * en a besoin comme base.
+     *
+     * Nous filtrons donc ici les tuiles pour que,
+     * par exemple, "Rainbow Crossing" signifie
+     * réellement "uniquement Rainbow Crossing".
+     */
+    function filterEnvironmentTiles(
+        resources,
+        environment
+    ) {
+
+        resources.tiles =
+            (resources.tiles || [])
+
+                .filter(
+                    tile =>
+                        tile.from ===
+                        environment.from
+                )
+
+                .map(tile => {
+
+                    tile.sides =
+                        tile.sides.filter(
+                            side =>
+                                side.skins.includes(
+                                    environment.skin
+                                )
+                        );
+
+
+                    return tile;
+
+                })
+
+                .filter(
+                    tile =>
+                        tile.sides.length > 0
+                );
+
+    }
+
+
+    /*
+     * Transforme les composants de notre éditeur
+     * en contraintes de salles comprises par MR2.
+     */
+    function createRoomRequirements(
+        scenario
+    ) {
+
+        const requirements = [];
+
+
+        scenario.components
+            .filter(
+                component =>
+                    SUPPORTED_TOKENS.has(
+                        component.tokenType
+                    )
+            )
+            .forEach(component => {
+
+                const quantity =
+                    Math.max(
+                        1,
+                        Number(
+                            component.quantity
+                        ) || 1
+                    );
+
+
+                for (
+                    let i = 0;
+                    i < quantity;
+                    i++
+                ) {
+
+                    const token = {
+
+                        id:
+                            component.tokenType
+
+                    };
+
+
+                    if (
+                        component.visibility ===
+                        "visible"
+                    ) {
+
+                        token.isVisible = true;
+
+                    }
+
+
+                    const requirement = {
+
+                        relevance: 1,
+
+                        add: [
+
+                            [
+
+                                {
+                                    tokens: [
+                                        token
+                                    ]
+                                }
+
+                            ]
+
+                        ]
+
+                    };
+
+
+                    /*
+                     * Si distance = any,
+                     * on laisse MR2 choisir librement.
+                     */
+                    if (
+                        DISTANCE_MAP[
+                            component.distance
+                        ] !== undefined
+                    ) {
+
+                        requirement.at =
+                            DISTANCE_MAP[
+                                component.distance
+                            ];
+
+                    }
+
+
+                    requirements.push(
+                        requirement
+                    );
+
+                }
+
+            });
+
+
+        return requirements;
+
+    }
+
+
+    function getRequestedTokens(
+        scenario
+    ) {
+
+        const requested = {};
+
+
+        scenario.components
+            .filter(
+                component =>
+                    SUPPORTED_TOKENS.has(
+                        component.tokenType
+                    )
+            )
+            .forEach(component => {
+
+                const id =
+                    component.tokenType;
+
+
+                if (!requested[id]) {
+
+                    requested[id] = 0;
+
+                }
+
+
+                requested[id] +=
+                    Math.max(
+                        1,
+                        Number(
+                            component.quantity
+                        ) || 1
+                    );
+
+            });
+
+
+        return requested;
+
+    }
+
+
+    function validateTokenAvailability(
+        resources,
+        scenario
+    ) {
+
+        const requested =
+            getRequestedTokens(
+                scenario
+            );
+
+
+        for (
+            const tokenId in requested
+        ) {
+
+            const available =
+                resources
+                    .tokensAvailable?.[
+                        tokenId
+                    ] || 0;
+
+
+            if (
+                requested[tokenId] >
+                available
+            ) {
+
+                throw new Error(
+                    `Le scénario demande ${requested[tokenId]} jetons "${tokenId}", ` +
+                    `mais MR2 n'en possède que ${available}.`
+                );
+
+            }
+
+        }
+
+    }
+
+    function tileSideMatchesRequirement(
+        side,
+        requirement
+    ) {
+
+        if (!side.tags) {
+            return false;
+        }
+
+
+        /*
+        * Chaque groupe de includeTags fonctionne comme :
+        *
+        * groupe 1 : A OU B OU C
+        * ET
+        * groupe 2 : D OU E
+        */
+
+        if (requirement.includeTags) {
+
+            const includesAreValid =
+                requirement.includeTags.every(
+                    group =>
+                        group.some(
+                            tag =>
+                                side.tags.includes(tag)
+                        )
+                );
+
+
+            if (!includesAreValid) {
+                return false;
+            }
+
+        }
+
+
+        if (requirement.excludeTags) {
+
+            const hasExcludedTag =
+                requirement.excludeTags.some(
+                    group =>
+                        group.some(
+                            tag =>
+                                side.tags.includes(tag)
+                        )
+                );
+
+
+            if (hasExcludedTag) {
+                return false;
+            }
+
+        }
+
+
+        return true;
+
+    }
+
+    function canAssignUniqueTiles(
+        requirements,
+        resources
+    ) {
+
+        /*
+        * Pour chaque emplacement de la map,
+        * on établit la liste des tuiles compatibles.
+        */
+
+        const candidates =
+            requirements.map(
+                requirement =>
+
+                    resources.tiles.filter(
+                        tile =>
+
+                            tile.sides.some(
+                                side =>
+                                    tileSideMatchesRequirement(
+                                        side,
+                                        requirement
+                                    )
+                            )
+
+                    )
+
+            );
+
+
+        /*
+        * Si un emplacement n'a aucune tuile possible,
+        * la configuration est immédiatement impossible.
+        */
+
+        if (
+            candidates.some(
+                list => list.length === 0
+            )
+        ) {
+
+            return false;
+
+        }
+
+
+        /*
+        * On commence par les contraintes
+        * ayant le moins de candidats.
+        */
+
+        const ordered =
+            candidates
+                .slice()
+                .sort(
+                    (a, b) =>
+                        a.length - b.length
+                );
+
+
+        const usedTiles =
+            new Set();
+
+
+        function assign(index) {
+
+            if (
+                index >= ordered.length
+            ) {
+
+                return true;
+
+            }
+
+
+            for (
+                const tile of ordered[index]
+            ) {
+
+                if (
+                    usedTiles.has(tile)
+                ) {
+
+                    continue;
+
+                }
+
+
+                usedTiles.add(tile);
+
+
+                if (
+                    assign(index + 1)
+                ) {
+
+                    return true;
+
+                }
+
+
+                usedTiles.delete(tile);
+
+            }
+
+
+            return false;
+
+        }
+
+
+        return assign(0);
+
+    }
+
+    function validateTileAvailability(
+        resources,
+        result,
+        environment
+    ) {
+
+        const requirements =
+            result
+                .mapConfig
+                ?.mapTiles || [];
+
+
+        if (!requirements.length) {
+
+            throw new Error(
+                "MR2 n'a fourni aucune configuration de tuiles."
+            );
+
+        }
+
+
+        const isPossible =
+            canAssignUniqueTiles(
+                requirements,
+                resources
+            );
+
+
+        if (!isPossible) {
+
+            throw new Error(
+
+                `${environment.label} n'offre pas suffisamment de tuiles ` +
+                `compatibles pour cette taille de donjon.\n\n` +
+
+                `Cette configuration demande ${requirements.length} ` +
+                `tuiles physiques différentes répondant aux contraintes de la map.\n\n` +
+
+                `Solutions possibles :\n` +
+                `• choisir une taille plus petite ;\n` +
+                `• choisir un autre environnement ;\n` +
+                `• autoriser davantage de faces de tuiles.`
+
+            );
+
+        }
+
+    }
+
+
+    function generatedMapSatisfiesScenario(
+        result,
+        scenario
+    ) {
+
+        if (
+            !result.map ||
+            !result.map.isValid
+        ) {
+
+            return false;
+
+        }
+
+
+        const requested =
+            getRequestedTokens(
+                scenario
+            );
+
+
+        for (
+            const tokenId in requested
+        ) {
+
+            const placed =
+                result
+                    .map
+                    .usedTokens?.[
+                        tokenId
+                    ] || 0;
+
+
+            if (
+                placed <
+                requested[tokenId]
+            ) {
+
+                return false;
+
+            }
+
+        }
+
+
+        return true;
+
+    }
+
+
+    function createAttempt(
+        scenario,
+        environment,
+        baseSeed,
+        attempt
+    ) {
+
+        const resources =
+            loadResources(
+                scenario,
+                environment
+            );
+
+
+        const technicalQuest =
+            createTechnicalQuest(
+                scenario
+            );
+
+
+        /*
+         * QuestGenerator vérifie l'existence
+         * de resources.quests avant de fonctionner.
+         */
+        resources.quests = [
+            technicalQuest
+        ];
+
+
+        filterEnvironmentTiles(
+            resources,
+            environment
+        );
+
+
+        validateTokenAvailability(
+            resources,
+            scenario
+        );
+
+
+        const mapSeed =
+            createMapSeed(
+                baseSeed,
+                attempt
+            );
+
+
+        const result = {
+
+            campaign: false,
+
+            attempt,
+
+            seed: baseSeed,
+
+            questSeed: baseSeed,
+
+            mapSeed,
+
+            labels: {}
+
+        };
+
+
+        /*
+         * On utilise QuestGenerator uniquement
+         * pour obtenir le mapConfig natif MR2.
+         */
+        QuestGenerator.generate(
+
+            resources,
+
+            result,
+
+            {
+                quest:
+                    technicalQuest
+            }
+
+        );
+
+
+        /*
+         * Maintenant nous injectons NOS contraintes.
+         */
+        result.mapConfig.roomsContent =
+            createRoomRequirements(
+                scenario
+            );
+
+
+        result.mapConfig.roomsHideTokens =
+            Boolean(
+                scenario
+                    .dungeon
+                    .dungeonCrawling
+            );
+
+
+        /*
+         * Pas de fusion de salles en v0.1 :
+         * cela facilite le placement de plusieurs
+         * objectifs dans des salles distinctes.
+         */
+        result.mapConfig.roomsMerges = 0;
+
+
+        validateTileAvailability(
+            resources,
+            result,
+            environment
+        );
+
+
+        /*
+         * Et seulement maintenant :
+         *
+         * moteur original MR2.
+         *
+         * NE PAS MODIFIER MapGenerator.
+         */
+        MapGenerator.generate(
+            resources,
+            result
+        );
+
+
+        return {
+            resources,
+            result
+        };
+
+    }
+
+
+    function generate(
+        scenario,
+        options = {}
+    ) {
+
+        const warnings =
+            validateScenario(
+                scenario
+            );
+
+
+        const environment =
+            getEnvironment(
+                scenario
+            );
+
+
+        const baseSeed =
+            Number(
+                options.seed
+            ) || createSeed();
+
+
+        for (
+            let attempt = 1;
+            attempt <= MAX_ATTEMPTS;
+            attempt++
+        ) {
+
+            const generated =
+                createAttempt(
+                    scenario,
+                    environment,
+                    baseSeed,
+                    attempt
+                );
+
+
+            if (
+                generatedMapSatisfiesScenario(
+                    generated.result,
+                    scenario
+                )
+            ) {
+
+                return {
+
+                    ...generated,
+
+                    scenario,
+
+                    environment,
+
+                    warnings,
+
+                    seed:
+                        baseSeed,
+
+                    attempt
+
+                };
+
+            }
+
+        }
+
+
+        throw new Error(
+            `Impossible de générer une map compatible après ${MAX_ATTEMPTS} tentatives.\n\n` +
+            `Essaie de réduire le nombre d'éléments, d'augmenter la taille du donjon ` +
+            `ou d'assouplir les contraintes de placement.`
+        );
+
+    }
+
+
+    return {
+
+        generate,
+
+        ENVIRONMENTS
+
+    };
+
+})();

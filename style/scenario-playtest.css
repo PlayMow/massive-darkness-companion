@@ -1,0 +1,265 @@
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+    margin: 0;
+
+    min-height: 100vh;
+
+    background: #161616;
+    color: #f2f0eb;
+
+    font-family: "Seshat", Arial, sans-serif;
+}
+
+
+.playtest-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 28px 40px;
+
+    background: #161616;
+
+    border-bottom: 1px solid #3a3a3a;
+}
+
+
+.playtest-kicker {
+    color: #c89a52;
+
+    font-size: 12px;
+    letter-spacing: 2px;
+}
+
+
+.playtest-header h1 {
+    margin: 2px 0 0;
+
+    font-family: "Ferrum", sans-serif;
+    font-size: 40px;
+    font-weight: normal;
+}
+
+
+.playtest-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    max-width: 1500px;
+
+    margin: 0 auto;
+    padding: 32px 40px 80px;
+}
+
+
+.playtest-panel {
+    padding: 26px;
+
+    background: #202020;
+
+    border: 1px solid #3a3a3a;
+    border-radius: 14px;
+}
+
+
+.scenario-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+
+.scenario-heading h2 {
+    margin: 4px 0;
+
+    font-family: "Ferrum", sans-serif;
+
+    font-size: 34px;
+    font-weight: normal;
+}
+
+
+.scenario-campaign {
+    color: #c89a52;
+
+    font-size: 12px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+}
+
+
+.scenario-story {
+    max-width: 900px;
+
+    color: #c8c4bd;
+
+    line-height: 1.6;
+}
+
+
+.scenario-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+
+.scenario-meta span {
+    padding: 6px 10px;
+
+    background: #171717;
+
+    border: 1px solid #3a3a3a;
+    border-radius: 7px;
+
+    font-size: 12px;
+}
+
+
+button,
+.secondary-button {
+    padding: 11px 16px;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 13px;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+
+.primary-button {
+    background: #c89a52;
+    color: #151515;
+
+    border: 1px solid #c89a52;
+}
+
+
+.secondary-button {
+    background: transparent;
+    color: #f2f0eb;
+
+    border: 1px solid #3a3a3a;
+}
+
+
+.warnings-panel {
+    border-color: #705c32;
+}
+
+
+.warnings-panel h3 {
+    color: #d4ad63;
+}
+
+
+.error-panel {
+    border-color: #744242;
+}
+
+
+.error-panel h3 {
+    color: #d88686;
+}
+
+
+#error-message {
+    white-space: pre-wrap;
+
+    color: #e4b0b0;
+
+    font-family: inherit;
+}
+
+
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+
+.map-header h3 {
+    margin: 0 0 4px;
+
+    font-family: "Ferrum", sans-serif;
+
+    font-size: 25px;
+    font-weight: normal;
+}
+
+
+#generation-data {
+    color: #aaa69f;
+
+    font-size: 12px;
+}
+
+
+.map-shell {
+    overflow: hidden;
+
+    background: #111;
+
+    border: 1px solid #3a3a3a;
+    border-radius: 10px;
+}
+
+
+.map-shell .miniMap {
+    overflow-x: auto;
+
+    margin: 0;
+    padding: 20px;
+
+    border-bottom: 1px solid #3a3a3a;
+}
+
+
+.map-shell .map {
+    overflow: auto;
+
+    margin: 0;
+
+    padding: 30px;
+
+    text-align: left;
+}
+
+
+@media (max-width: 800px) {
+
+    .playtest-header,
+    .scenario-heading {
+        flex-direction: column;
+    }
+
+
+    .playtest-header {
+        align-items: flex-start;
+
+        padding: 20px;
+    }
+
+
+    .playtest-layout {
+        padding: 20px;
+    }
+
+}

@@ -2,6 +2,7 @@ const ScenarioEditor = (() => {
 
     const STORAGE_KEY = "MDC_SCENARIO_DRAFT_V1";
 
+    const PLAYTEST_KEY = "MDC_PLAYTEST_SCENARIO_V1";
 
     const TOKEN_TYPES = [
 
@@ -981,6 +982,47 @@ const ScenarioEditor = (() => {
 
     }
 
+    function playtestScenario() {
+
+        const scenario =
+            readScenario();
+
+
+        /*
+        * On sauvegarde également le brouillon :
+        * revenir depuis le Playtest ne fera donc
+        * pas perdre les modifications.
+        */
+        localStorage.setItem(
+
+            STORAGE_KEY,
+
+            JSON.stringify(
+                scenario
+            )
+
+        );
+
+
+        /*
+        * sessionStorage sert à transmettre
+        * précisément cette version au Playtest.
+        */
+        sessionStorage.setItem(
+
+            PLAYTEST_KEY,
+
+            JSON.stringify(
+                scenario
+            )
+
+        );
+
+
+        window.location.href =
+            "scenario-playtest.html";
+
+    }
 
     function initialize() {
 
@@ -1016,6 +1058,14 @@ const ScenarioEditor = (() => {
                 saveDraft
             );
 
+        document
+            .getElementById(
+                "playtest-scenario"
+            )
+            .addEventListener(
+                "click",
+                playtestScenario
+            );
 
         document
             .getElementById("export-scenario")
