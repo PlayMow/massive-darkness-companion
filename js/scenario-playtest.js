@@ -954,6 +954,82 @@ const ScenarioPlaytest = (() => {
 
     }
 
+    function restartScenario() {
+
+        const confirmed =
+            window.confirm(
+                "Recommencer entièrement ce scénario ?\n\n" +
+                "Le donjon actuel et toutes les révélations de cette partie seront perdus."
+            );
+
+
+        if (!confirmed) {
+
+            return;
+
+        }
+
+
+        /*
+        * Supprime la sauvegarde actuelle.
+        *
+        * Le scénario lui-même et le brouillon
+        * de l'éditeur ne sont pas affectés.
+        */
+        localStorage.removeItem(
+            getSaveKey()
+        );
+
+
+        /*
+        * Réinitialise l'identité de la sauvegarde.
+        */
+        saveId = null;
+
+        saveCreatedAt = null;
+
+
+        /*
+        * Tous les blocs cachés redeviennent cachés.
+        */
+        revealedNarrativeBlocks.clear();
+
+
+        /*
+        * Aucune génération précédente
+        * ne doit être réutilisée.
+        */
+        generationState = {
+
+            seed: null,
+
+            questSeed: null,
+
+            mapSeed: null,
+
+            attempt: null
+
+        };
+
+
+        /*
+        * L'interface narrative revient
+        * immédiatement à son état initial.
+        */
+        renderNarrative();
+
+
+        /*
+        * Génère un nouveau donjon.
+        *
+        * generateMap(true) créera ensuite
+        * automatiquement une nouvelle sauvegarde.
+        */
+        generateMap(
+            true
+        );
+
+    }    
 
     function initialize() {
 
@@ -971,6 +1047,16 @@ const ScenarioPlaytest = (() => {
         renderNarrative();
 
 
+            document
+                .getElementById(
+                    "restart-scenario"
+                )
+                .addEventListener(
+                    "click",
+                    restartScenario
+                );
+
+                
             document
                 .getElementById(
                     "regenerate-map"

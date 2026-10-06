@@ -369,3 +369,23 @@ button,
     }
 
 }
+
+
+.scenario-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    justify-content: flex-end;
+}
+
+
+@media (max-width: 800px) {
+
+    .scenario-actions {
+        width: 100%;
+
+        justify-content: flex-start;
+    }
+
+}
