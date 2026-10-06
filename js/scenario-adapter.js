@@ -95,6 +95,25 @@ const ScenarioAdapter = (() => {
 
     };
 
+    const MIX_MODES = {
+
+        mixed: {
+            label: "Mélange libre",
+            module: "maps-default-notuniform"
+        },
+
+        single: {
+            label: "Un seul environnement aléatoire",
+            module: "maps-default-uniform"
+        },
+
+        split: {
+            label: "Zones distinctes",
+            module: "maps-default-split"
+        }
+
+    };
+
     /*
      * v0.1 :
      * seuls ces deux jetons personnalisés sont encore supportés.
@@ -206,6 +225,41 @@ const ScenarioAdapter = (() => {
                     )
                 )
             ]
+
+        };
+
+    }
+
+    function getMixMode(
+        scenario
+    ) {
+
+        const id =
+            scenario
+                ?.dungeon
+                ?.tiles
+                ?.mixMode
+            || "mixed";
+
+
+        const mode =
+            MIX_MODES[id];
+
+
+        if (!mode) {
+
+            throw new Error(
+                `Mode d'organisation des environnements inconnu : ${id}`
+            );
+
+        }
+
+
+        return {
+
+            id,
+
+            ...mode
 
         };
 
@@ -445,6 +499,10 @@ const ScenarioAdapter = (() => {
                                 "path"
                             ],
 
+                            skin: [
+                                "default"
+                            ],
+
                             difficulty: [
                                 "default"
                             ],
@@ -481,7 +539,8 @@ const ScenarioAdapter = (() => {
     */
     function loadResources(
         scenario,
-        tileSets
+        tileSets,
+        mixMode
     ) {
 
         const size =
@@ -499,7 +558,7 @@ const ScenarioAdapter = (() => {
 
                 `maps-size-${size}`,
 
-                "maps-default-notuniform",
+                mixMode.module,
 
                 "quests-default"
 
@@ -764,8 +823,23 @@ const ScenarioAdapter = (() => {
 
     function tileSideMatchesRequirement(
         side,
-        requirement
+        requirement,
+        requiredSkin = null
     ) {
+
+        if (
+            requiredSkin &&
+            (
+                !side.skins ||
+                !side.skins.includes(
+                    requiredSkin
+                )
+            )
+        ) {
+
+            return false;
+
+        }
 
         if (!side.tags) {
             return false;
@@ -824,7 +898,8 @@ const ScenarioAdapter = (() => {
 
     function canAssignUniqueTiles(
         requirements,
-        resources
+        resources,
+        requiredSkin = null
     ) {
 
         /*
@@ -843,7 +918,8 @@ const ScenarioAdapter = (() => {
                                 side =>
                                     tileSideMatchesRequirement(
                                         side,
-                                        requirement
+                                        requirement,
+                                        requiredSkin
                                     )
                             )
 
@@ -936,16 +1012,45 @@ const ScenarioAdapter = (() => {
 
     }
 
+    function getAvailableSkins(
+        resources
+    ) {
+
+        return [
+
+            ...new Set(
+
+                resources.tiles.flatMap(
+
+                    tile =>
+
+                        tile.sides.flatMap(
+
+                            side =>
+                                side.skins || []
+
+                        )
+
+                )
+
+            )
+
+        ];
+
+    }
+
     function validateTileAvailability(
         resources,
         result,
-        tileSets
+        tileSets,
+        mixMode
     ) {
 
         const requirements =
             result
                 .mapConfig
-                ?.mapTiles || [];
+                ?.mapTiles
+            || [];
 
 
         if (!requirements.length) {
@@ -957,27 +1062,120 @@ const ScenarioAdapter = (() => {
         }
 
 
-        const isPossible =
-            canAssignUniqueTiles(
-                requirements,
+        const skins =
+            getAvailableSkins(
                 resources
             );
 
 
+        let isPossible =
+            false;
+
+
+        /*
+        * ------------------------------------------------
+        * MÉLANGE LIBRE
+        * ------------------------------------------------
+        */
+
+        if (
+            mixMode.id === "mixed"
+        ) {
+
+            isPossible =
+                canAssignUniqueTiles(
+                    requirements,
+                    resources
+                );
+
+        }
+
+
+        /*
+        * ------------------------------------------------
+        * UN SEUL ENVIRONNEMENT
+        * ------------------------------------------------
+        *
+        * Il faut qu'au moins un skin puisse
+        * fournir toutes les tuiles nécessaires.
+        */
+
+        else if (
+            mixMode.id === "single"
+        ) {
+
+            isPossible =
+                skins.some(
+
+                    skin =>
+
+                        canAssignUniqueTiles(
+                            requirements,
+                            resources,
+                            skin
+                        )
+
+                );
+
+        }
+
+
+        /*
+        * ------------------------------------------------
+        * ZONES DISTINCTES
+        * ------------------------------------------------
+        *
+        * Le système split natif de MR2 fonctionne
+        * avec deux zones visuelles.
+        */
+
+        else if (
+            mixMode.id === "split"
+        ) {
+
+            if (
+                skins.length < 2
+            ) {
+
+                throw new Error(
+
+                    "Le mode « Zones distinctes » nécessite " +
+                    "au moins deux environnements visuels différents."
+
+                );
+
+            }
+
+
+            isPossible =
+                canAssignUniqueTiles(
+                    requirements,
+                    resources
+                );
+
+        }
+
+
         if (!isPossible) {
+
+            const selectedSets =
+                tileSets
+                    .sets
+                    .map(
+                        set =>
+                            set.label
+                    )
+                    .join(", ");
+
 
             throw new Error(
 
-                `Les sets de tuiles sélectionnés n'offrent pas suffisamment de tuiles compatibles pour cette taille de donjon.` +
-                `compatibles pour cette taille de donjon.\n\n` +
+                `Impossible de générer cette taille de donjon avec ` +
+                `le mode « ${mixMode.label} ».\n\n` +
 
-                `Cette configuration demande ${requirements.length} ` +
-                `tuiles physiques différentes répondant aux contraintes de la map.\n\n` +
+                `Sets autorisés : ${selectedSets}\n` +
 
-                `Solutions possibles :\n` +
-                `• choisir une taille plus petite ;\n` +
-                `• choisir un autre environnement ;\n` +
-                `• autoriser davantage de faces de tuiles.`
+                `Tuiles nécessaires : ${requirements.length}`
 
             );
 
@@ -1039,6 +1237,7 @@ const ScenarioAdapter = (() => {
     function createAttempt(
         scenario,
         tileSets,
+        mixMode,
         baseSeed,
         attempt
     ) {
@@ -1046,7 +1245,8 @@ const ScenarioAdapter = (() => {
         const resources =
             loadResources(
                 scenario,
-                tileSets
+                tileSets,
+                mixMode
             );
 
 
@@ -1147,7 +1347,8 @@ const ScenarioAdapter = (() => {
         validateTileAvailability(
             resources,
             result,
-            tileSets
+            tileSets,
+            mixMode
         );
 
 
@@ -1188,6 +1389,12 @@ const ScenarioAdapter = (() => {
                 scenario
             );
 
+            
+        const mixMode =
+            getMixMode(
+                scenario
+            );
+
 
         const baseSeed =
             Number(
@@ -1205,6 +1412,7 @@ const ScenarioAdapter = (() => {
                 createAttempt(
                     scenario,
                     tileSets,
+                    mixMode,
                     baseSeed,
                     attempt
                 );
@@ -1224,6 +1432,8 @@ const ScenarioAdapter = (() => {
                     scenario,
 
                     tileSets,
+
+                    mixMode,
 
                     warnings,
 
