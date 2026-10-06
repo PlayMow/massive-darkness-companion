@@ -12,10 +12,117 @@ const ScenarioPlaytest = (() => {
         "MDC_SCENARIO_DRAFT_V1";
 
 
+    const SAVE_PREFIX =
+        "MDC_PLAYTEST_SAVE_V1_";
+
+
     let scenario;
 
     const revealedNarrativeBlocks =
         new Set();
+
+    function getSaveKey() {
+
+        return (
+            SAVE_PREFIX +
+            scenario.id
+        );
+
+    }
+
+
+    function loadPlaytestState() {
+
+        const raw =
+            localStorage.getItem(
+                getSaveKey()
+            );
+
+
+        if (!raw) {
+
+            return;
+
+        }
+
+
+        try {
+
+            const save =
+                JSON.parse(
+                    raw
+                );
+
+
+            (
+                save
+                    .narrative
+                    ?.revealed
+                || []
+            )
+                .forEach(
+                    id => {
+
+                        revealedNarrativeBlocks
+                            .add(
+                                id
+                            );
+
+                    }
+                );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Impossible de charger la sauvegarde du Playtest.",
+                error
+            );
+
+        }
+
+    }
+
+
+    function savePlaytestState() {
+
+        const save = {
+
+            saveSchemaVersion: 1,
+
+            scenarioId:
+                scenario.id,
+
+            scenarioRevision:
+                scenario.revision || 1,
+
+            updatedAt:
+                new Date()
+                    .toISOString(),
+
+            narrative: {
+
+                revealed: [
+                    ...revealedNarrativeBlocks
+                ]
+
+            }
+
+        };
+
+
+        localStorage.setItem(
+
+            getSaveKey(),
+
+            JSON.stringify(
+                save
+            )
+
+        );
+
+    }
 
     const NARRATIVE_TYPE_LABELS = {
 
@@ -453,7 +560,8 @@ const ScenarioPlaytest = (() => {
                         block.id
                     );
 
-
+                savePlaytestState();
+                
                 renderNarrative();
 
             }
@@ -680,13 +788,16 @@ const ScenarioPlaytest = (() => {
 
         try {
 
-            scenario =
-                readScenario();
+        scenario =
+            readScenario();
 
 
-            renderScenarioInfo();
+        loadPlaytestState();
 
-            renderNarrative();
+
+        renderScenarioInfo();
+
+        renderNarrative();
 
 
             document
