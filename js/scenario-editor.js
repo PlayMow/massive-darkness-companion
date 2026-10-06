@@ -1,8 +1,13 @@
 const ScenarioEditor = (() => {
 
-    const STORAGE_KEY = "MDC_SCENARIO_DRAFT_V1";
+    const STORAGE_KEY =
+        "MDC_SCENARIO_DRAFT_V2";
 
-    const PLAYTEST_KEY = "MDC_PLAYTEST_SCENARIO_V1";
+    const LEGACY_STORAGE_KEY =
+        "MDC_SCENARIO_DRAFT_V1";
+
+    const PLAYTEST_KEY =
+        "MDC_PLAYTEST_SCENARIO_V1";
 
     const TOKEN_TYPES = [
 
@@ -107,17 +112,35 @@ const ScenarioEditor = (() => {
 
     const defaultScenario = () => ({
 
-        schemaVersion: 1,
+        schemaVersion: 2,
 
-        id: createId(),
+        id:
+            ScenarioSchema.createId(
+                "scenario"
+            ),
+
+        revision: 1,
 
         title: "",
 
-        campaign: "",
+        campaign: {
 
-        chapter: 1,
+            id: null,
 
-        story: "",
+            title: "",
+
+            chapter: 1
+
+        },
+
+        narrative: [
+
+            ScenarioSchema
+                .createNarrativeBlock(
+                    "introduction"
+                )
+
+        ],
 
 
         dungeon: {
@@ -130,18 +153,7 @@ const ScenarioEditor = (() => {
                     "hellscape"
                 ],
 
-                mixMode: "mixed",
-
-                /*
-                * Compatibilité temporaire avec
-                * Scenario Adapter v0.1.
-                */
-
-                environment: "hellscape-light",
-
-                module: "md2-hellscape",
-
-                skin: "light"
+                mixMode: "mixed"
 
             },
 
@@ -1037,6 +1049,72 @@ const ScenarioEditor = (() => {
 
     }
 
+    function readNarrativeBlocks() {
+
+        return [
+
+            ...document.querySelectorAll(
+                ".narrative-card"
+            )
+
+        ].map(
+            card => ({
+
+                id:
+                    card.dataset
+                        .narrativeId,
+
+                type:
+                    card
+                        .querySelector(
+                            '[data-field="type"]'
+                        )
+                        .value,
+
+                title:
+                    card
+                        .querySelector(
+                            '[data-field="title"]'
+                        )
+                        .value
+                        .trim(),
+
+                text:
+                    card
+                        .querySelector(
+                            '[data-field="text"]'
+                        )
+                        .value
+                        .trim(),
+
+                visibility:
+                    card
+                        .querySelector(
+                            '[data-field="visibility"]'
+                        )
+                        .value,
+
+                hideTitle:
+                    card
+                        .querySelector(
+                            '[data-field="hideTitle"]'
+                        )
+                        .checked,
+
+                reveal: {
+
+                    mode: "manual",
+
+                    trigger: null
+
+                }
+
+            })
+
+        );
+
+    }    
+
     function readScenario() {
 
         const selectedTileSets = [
@@ -1051,66 +1129,75 @@ const ScenarioEditor = (() => {
         );
 
 
-        /*
-        * Compatibilité temporaire avec
-        * l'ancien Scenario Adapter.
-        *
-        * Tant que le nouvel Adapter multi-sets
-        * n'est pas installé, le Playtest utilisera
-        * Hellscape — Donjon.
-        */
-
-        const legacyEnvironment =
-            TILE_ENVIRONMENTS.find(
-                environment =>
-                    environment.id === "hellscape-light"
-            );
-        
         return {
 
-            schemaVersion: 1,
+            schemaVersion: 2,
 
-            id: document.body.dataset.scenarioId,
+            id:
+                document.body
+                    .dataset
+                    .scenarioId,
 
-
-            title:
-                document
-                    .getElementById("scenario-title")
-                    .value
-                    .trim(),
-
-
-            campaign:
-                document
-                    .getElementById("scenario-campaign")
-                    .value
-                    .trim(),
-
-
-            chapter:
+            revision:
                 Math.max(
                     1,
                     Number(
-                        document
-                            .getElementById("scenario-chapter")
-                            .value
+                        document.body
+                            .dataset
+                            .scenarioRevision
                     ) || 1
                 ),
 
 
-            story:
+            title:
                 document
-                    .getElementById("scenario-story")
+                    .getElementById(
+                        "scenario-title"
+                    )
                     .value
                     .trim(),
+
+
+            campaign: {
+
+                id: null,
+
+                title:
+                    document
+                        .getElementById(
+                            "scenario-campaign"
+                        )
+                        .value
+                        .trim(),
+
+                chapter:
+                    Math.max(
+                        1,
+                        Number(
+                            document
+                                .getElementById(
+                                    "scenario-chapter"
+                                )
+                                .value
+                        ) || 1
+                    )
+
+            },
+
+
+            narrative:
+                readNarrativeBlocks(),
 
 
             dungeon: {
 
                 size:
                     document
-                        .getElementById("dungeon-size")
+                        .getElementById(
+                            "dungeon-size"
+                        )
                         .value,
+
 
                 tiles: {
 
@@ -1122,29 +1209,16 @@ const ScenarioEditor = (() => {
                             .getElementById(
                                 "tile-mix-mode"
                             )
-                            .value,
-
-
-                    /*
-                    * TEMPORAIRE :
-                    * utilisé uniquement par l'Adapter v0.1.
-                    */
-
-                    environment:
-                        legacyEnvironment.id,
-
-                    module:
-                        legacyEnvironment.module,
-
-                    skin:
-                        legacyEnvironment.skin
+                            .value
 
                 },
 
 
                 dungeonCrawling:
                     document
-                        .getElementById("dungeon-crawling")
+                        .getElementById(
+                            "dungeon-crawling"
+                        )
                         .checked,
 
 
@@ -1152,19 +1226,23 @@ const ScenarioEditor = (() => {
 
                     enabled:
                         document
-                            .getElementById("boss-enabled")
+                            .getElementById(
+                                "boss-enabled"
+                            )
                             .checked,
-
 
                     mode:
                         document
-                            .getElementById("boss-mode")
+                            .getElementById(
+                                "boss-mode"
+                            )
                             .value,
-
 
                     name:
                         document
-                            .getElementById("boss-name")
+                            .getElementById(
+                                "boss-name"
+                            )
                             .value
                             .trim()
 
@@ -1181,114 +1259,196 @@ const ScenarioEditor = (() => {
                     )
                 ]
 
-                .map(card => ({
+                .map(
+                    card => ({
 
-                    id:
-                        card.dataset.componentId,
+                        id:
+                            card.dataset
+                                .componentId,
 
+                        tokenType:
+                            card
+                                .querySelector(
+                                    '[data-field="tokenType"]'
+                                )
+                                .value,
 
-                    tokenType:
-                        card
-                            .querySelector(
-                                '[data-field="tokenType"]'
-                            )
-                            .value,
+                        role:
+                            card
+                                .querySelector(
+                                    '[data-field="role"]'
+                                )
+                                .value
+                                .trim(),
 
+                        quantity:
+                            Math.max(
+                                1,
+                                Number(
+                                    card
+                                        .querySelector(
+                                            '[data-field="quantity"]'
+                                        )
+                                        .value
+                                ) || 1
+                            ),
 
-                    role:
-                        card
-                            .querySelector(
-                                '[data-field="role"]'
-                            )
-                            .value
-                            .trim(),
+                        placement:
+                            card
+                                .querySelector(
+                                    '[data-field="placement"]'
+                                )
+                                .value,
 
+                        distribution:
+                            card
+                                .querySelector(
+                                    '[data-field="distribution"]'
+                                )
+                                .value,
 
-                    quantity:
-                        Math.max(
-                            1,
-                            Number(
-                                card
-                                    .querySelector(
-                                        '[data-field="quantity"]'
-                                    )
-                                    .value
-                            ) || 1
-                        ),
+                        distance:
+                            card
+                                .querySelector(
+                                    '[data-field="distance"]'
+                                )
+                                .value,
 
+                        visibility:
+                            card
+                                .querySelector(
+                                    '[data-field="visibility"]'
+                                )
+                                .value
 
-                    placement:
-                        card
-                            .querySelector(
-                                '[data-field="placement"]'
-                            )
-                            .value,
-
-
-                    distribution:
-                        card
-                            .querySelector(
-                                '[data-field="distribution"]'
-                            )
-                            .value,
-
-
-                    distance:
-                        card
-                            .querySelector(
-                                '[data-field="distance"]'
-                            )
-                            .value,
-
-
-                    visibility:
-                        card
-                            .querySelector(
-                                '[data-field="visibility"]'
-                            )
-                            .value
-
-                }))
+                    })
+                )
 
         };
 
     }
 
 
-    function writeScenario(scenario) {
+    function writeScenario(
+        scenario
+    ) {
 
-        document.body.dataset.scenarioId =
-            scenario.id || createId();
+        /*
+        * Un ancien brouillon v1 est converti
+        * automatiquement avant d'être injecté
+        * dans l'interface.
+        */
+        scenario =
+            ScenarioSchema.migrate(
+                scenario
+            );
+
+
+        document.body
+            .dataset
+            .scenarioId =
+            scenario.id ||
+            ScenarioSchema.createId(
+                "scenario"
+            );
+
+
+        document.body
+            .dataset
+            .scenarioRevision =
+            String(
+                scenario.revision || 1
+            );
 
 
         document
-            .getElementById("scenario-title")
+            .getElementById(
+                "scenario-title"
+            )
             .value =
             scenario.title || "";
 
 
         document
-            .getElementById("scenario-campaign")
+            .getElementById(
+                "scenario-campaign"
+            )
             .value =
-            scenario.campaign || "";
+            scenario
+                .campaign
+                ?.title
+            || "";
 
 
         document
-            .getElementById("scenario-chapter")
+            .getElementById(
+                "scenario-chapter"
+            )
             .value =
-            scenario.chapter || 1;
+            scenario
+                .campaign
+                ?.chapter
+            || 1;
 
+
+        /*
+        * NARRATION
+        */
+
+        const narrativeList =
+            document.getElementById(
+                "narrative-list"
+            );
+
+
+        narrativeList.innerHTML = "";
+
+
+        const narrativeBlocks =
+            (
+                Array.isArray(
+                    scenario.narrative
+                ) &&
+                scenario.narrative.length
+            )
+                ? scenario.narrative
+                : [
+                    ScenarioSchema
+                        .createNarrativeBlock(
+                            "introduction"
+                        )
+                ];
+
+
+        narrativeBlocks
+            .forEach(
+                block => {
+
+                    narrativeList
+                        .appendChild(
+                            createNarrativeCard(
+                                block
+                            )
+                        );
+
+                }
+            );
+
+
+        updateNarrativeButtons();
+
+
+        /*
+        * DONJON
+        */
 
         document
-            .getElementById("scenario-story")
+            .getElementById(
+                "dungeon-size"
+            )
             .value =
-            scenario.story || "";
-
-
-        document
-            .getElementById("dungeon-size")
-            .value =
-            scenario.dungeon?.size || "normal";
+            scenario.dungeon?.size ||
+            "normal";
 
 
         const selectedSets =
@@ -1296,23 +1456,25 @@ const ScenarioEditor = (() => {
                 .dungeon
                 ?.tiles
                 ?.sets
-                || [
-                    "hellscape"
-                ];
+            || [
+                "hellscape"
+            ];
 
 
         document
             .querySelectorAll(
                 'input[name="tile-set"]'
             )
-            .forEach(input => {
+            .forEach(
+                input => {
 
-                input.checked =
-                    selectedSets.includes(
-                        input.value
-                    );
+                    input.checked =
+                        selectedSets.includes(
+                            input.value
+                        );
 
-            });
+                }
+            );
 
 
         document
@@ -1324,32 +1486,63 @@ const ScenarioEditor = (() => {
                 .dungeon
                 ?.tiles
                 ?.mixMode
-                || "mixed";
+            || "mixed";
 
 
         document
-            .getElementById("dungeon-crawling")
+            .getElementById(
+                "dungeon-crawling"
+            )
             .checked =
-            scenario.dungeon?.dungeonCrawling ?? true;
+            scenario
+                .dungeon
+                ?.dungeonCrawling
+            ?? true;
 
+
+        /*
+        * BOSS
+        */
 
         document
-            .getElementById("boss-enabled")
+            .getElementById(
+                "boss-enabled"
+            )
             .checked =
-            scenario.dungeon?.boss?.enabled ?? false;
+            scenario
+                .dungeon
+                ?.boss
+                ?.enabled
+            ?? false;
 
 
         document
-            .getElementById("boss-mode")
+            .getElementById(
+                "boss-mode"
+            )
             .value =
-            scenario.dungeon?.boss?.mode || "random";
+            scenario
+                .dungeon
+                ?.boss
+                ?.mode
+            || "random";
 
 
         document
-            .getElementById("boss-name")
+            .getElementById(
+                "boss-name"
+            )
             .value =
-            scenario.dungeon?.boss?.name || "";
+            scenario
+                .dungeon
+                ?.boss
+                ?.name
+            || "";
 
+
+        /*
+        * COMPOSANTS
+        */
 
         const list =
             document.getElementById(
@@ -1360,15 +1553,20 @@ const ScenarioEditor = (() => {
         list.innerHTML = "";
 
 
-        (scenario.components || [])
+        (
+            scenario.components || []
+        )
+            .forEach(
+                component => {
 
-            .forEach(component => {
+                    list.appendChild(
+                        createComponentCard(
+                            component
+                        )
+                    );
 
-                list.appendChild(
-                    createComponentCard(component)
-                );
-
-            });
+                }
+            );
 
 
         updateBossFields();
@@ -1442,26 +1640,82 @@ const ScenarioEditor = (() => {
 
     function loadDraft() {
 
-        const raw =
+        const currentRaw =
             localStorage.getItem(
                 STORAGE_KEY
             );
 
 
-        if (!raw)
+        const legacyRaw =
+            localStorage.getItem(
+                LEGACY_STORAGE_KEY
+            );
+
+
+        const raw =
+            currentRaw ||
+            legacyRaw;
+
+
+        if (!raw) {
+
             return false;
+
+        }
 
 
         try {
 
+            const parsed =
+                JSON.parse(
+                    raw
+                );
+
+
+            const migrated =
+                ScenarioSchema.migrate(
+                    parsed
+                );
+
+
             writeScenario(
-                JSON.parse(raw)
+                migrated
             );
 
 
-            setStatus(
-                "Brouillon local chargé."
-            );
+            /*
+            * Si nous venons d'un ancien brouillon v1,
+            * nous créons immédiatement une copie v2.
+            *
+            * L'ancien brouillon est volontairement
+            * conservé comme filet de sécurité.
+            */
+            if (!currentRaw) {
+
+                localStorage.setItem(
+
+                    STORAGE_KEY,
+
+                    JSON.stringify(
+                        migrated
+                    )
+
+                );
+
+
+                setStatus(
+                    "Ancien brouillon migré vers le schéma v2."
+                );
+
+            }
+
+            else {
+
+                setStatus(
+                    "Brouillon local chargé."
+                );
+
+            }
 
 
             return true;
@@ -1470,7 +1724,9 @@ const ScenarioEditor = (() => {
 
         catch (error) {
 
-            console.error(error);
+            console.error(
+                error
+            );
 
             return false;
 

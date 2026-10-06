@@ -445,7 +445,23 @@ const ScenarioAdapter = (() => {
 
 
         const story =
-            scenario.story || "";
+
+            scenario
+                .narrative
+                ?.find(
+                    block =>
+                        block.type ===
+                        "introduction"
+                )
+                ?.text
+
+            ||
+
+            scenario.story
+
+            ||
+
+            "";
 
 
         return {
