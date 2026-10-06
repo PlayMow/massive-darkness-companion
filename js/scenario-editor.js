@@ -1222,31 +1222,51 @@ const ScenarioEditor = (() => {
                         .checked,
 
 
-                boss: {
+                boss: (() => {
 
-                    enabled:
+                    const enabled =
                         document
                             .getElementById(
                                 "boss-enabled"
                             )
-                            .checked,
+                            .checked;
 
-                    mode:
-                        document
-                            .getElementById(
-                                "boss-mode"
-                            )
-                            .value,
 
-                    name:
-                        document
-                            .getElementById(
-                                "boss-name"
-                            )
-                            .value
-                            .trim()
+                    const mode =
+                        enabled
+                            ? document
+                                .getElementById(
+                                    "boss-mode"
+                                )
+                                .value
+                            : "random";
 
-                }
+
+                    const name =
+                        (
+                            enabled &&
+                            mode === "fixed"
+                        )
+                            ? document
+                                .getElementById(
+                                    "boss-name"
+                                )
+                                .value
+                                .trim()
+                            : "";
+
+
+                    return {
+
+                        enabled,
+
+                        mode,
+
+                        name
+
+                    };
+
+                })()
 
             },
 
@@ -1601,20 +1621,82 @@ const ScenarioEditor = (() => {
 
         const enabled =
             document
-                .getElementById("boss-enabled")
+                .getElementById(
+                    "boss-enabled"
+                )
                 .checked;
 
 
-        document
-            .getElementById("boss-mode")
-            .disabled =
-            !enabled;
+        const modeSelect =
+            document.getElementById(
+                "boss-mode"
+            );
 
 
-        document
-            .getElementById("boss-name")
-            .disabled =
-            !enabled;
+        const nameInput =
+            document.getElementById(
+                "boss-name"
+            );
+
+
+        /*
+        * Aucun Boss :
+        * on normalise l'état.
+        */
+        if (!enabled) {
+
+            modeSelect.disabled = true;
+
+            modeSelect.value =
+                "random";
+
+
+            nameInput.disabled = true;
+
+            nameInput.value = "";
+
+            nameInput.required = false;
+
+            return;
+
+        }
+
+
+        /*
+        * Boss présent :
+        * le choix random/fixed devient accessible.
+        */
+        modeSelect.disabled = false;
+
+
+        /*
+        * Boss imposé :
+        * le nom est obligatoire.
+        */
+        if (
+            modeSelect.value ===
+            "fixed"
+        ) {
+
+            nameInput.disabled = false;
+
+            nameInput.required = true;
+
+        }
+
+        /*
+        * Boss aléatoire :
+        * aucun nom ne doit être conservé.
+        */
+        else {
+
+            nameInput.disabled = true;
+
+            nameInput.value = "";
+
+            nameInput.required = false;
+
+        }
 
     }
 
