@@ -1921,11 +1921,65 @@ const ScenarioEditor = (() => {
 
     }
 
+    function validateScenarioForPlaytest(
+        scenario
+    ) {
+
+        const validation =
+            ScenarioSchema.validate(
+                scenario
+            );
+
+
+        if (
+            validation.valid
+        ) {
+
+            return true;
+
+        }
+
+
+        const message =
+
+            "Impossible de lancer le Playtest.\n\n" +
+
+            validation.errors
+                .map(
+                    error =>
+                        `• ${error}`
+                )
+                .join("\n");
+
+
+        window.alert(
+            message
+        );
+
+
+        setStatus(
+            "Le scénario contient des erreurs."
+        );
+
+
+        return false;
+
+    }
+
     function playtestScenario() {
 
         const scenario =
             readScenario();
 
+        if (
+            !validateScenarioForPlaytest(
+                scenario
+            )
+        ) {
+
+            return;
+
+        }            
 
         /*
         * On sauvegarde également le brouillon :
