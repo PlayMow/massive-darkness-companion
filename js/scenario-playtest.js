@@ -21,6 +21,23 @@ const ScenarioPlaytest = (() => {
     const revealedNarrativeBlocks =
         new Set();
 
+    let saveId = null;
+
+    let saveCreatedAt = null;
+
+
+    let generationState = {
+
+        seed: null,
+
+        questSeed: null,
+
+        mapSeed: null,
+
+        attempt: null
+
+    };        
+
     function getSaveKey() {
 
         return (
@@ -71,6 +88,42 @@ const ScenarioPlaytest = (() => {
                     }
                 );
 
+            saveId =
+                save.id || null;
+
+
+            saveCreatedAt =
+                save.createdAt || null;
+
+
+            const generation =
+                save.generation || {};
+
+
+            generationState = {
+
+                seed:
+                    Number(
+                        generation.seed
+                    ) || null,
+
+                questSeed:
+                    Number(
+                        generation.questSeed
+                    ) || null,
+
+                mapSeed:
+                    Number(
+                        generation.mapSeed
+                    ) || null,
+
+                attempt:
+                    Number(
+                        generation.attempt
+                    ) || null
+
+            };                
+
         }
 
         catch (error) {
@@ -87,9 +140,36 @@ const ScenarioPlaytest = (() => {
 
     function savePlaytestState() {
 
+        const now =
+            new Date()
+                .toISOString();
+
+
+        if (!saveId) {
+
+            saveId =
+                ScenarioSchema.createId(
+                    "save"
+                );
+
+        }
+
+
+        if (!saveCreatedAt) {
+
+            saveCreatedAt =
+                now;
+
+        }
+
+
         const save = {
 
             saveSchemaVersion: 1,
+
+            id:
+                saveId,
+
 
             scenarioId:
                 scenario.id,
@@ -97,9 +177,34 @@ const ScenarioPlaytest = (() => {
             scenarioRevision:
                 scenario.revision || 1,
 
+
+            status:
+                "in-progress",
+
+
+            createdAt:
+                saveCreatedAt,
+
             updatedAt:
-                new Date()
-                    .toISOString(),
+                now,
+
+
+            generation: {
+
+                seed:
+                    generationState.seed,
+
+                questSeed:
+                    generationState.questSeed,
+
+                mapSeed:
+                    generationState.mapSeed,
+
+                attempt:
+                    generationState.attempt
+
+            },
+
 
             narrative: {
 
@@ -723,7 +828,9 @@ const ScenarioPlaytest = (() => {
     }
 
 
-    function generateMap() {
+    function generateMap(
+        forceNew = false
+    ) {
 
         clearError();
 
@@ -732,10 +839,66 @@ const ScenarioPlaytest = (() => {
 
         try {
 
+            const options = {};
+
+
+            /*
+            * Si une génération a déjà été sauvegardée,
+            * on réutilise sa seed.
+            *
+            * Si forceNew = true, on laisse l'Adapter
+            * créer une nouvelle seed.
+            */
+            if (
+                !forceNew &&
+                generationState.seed
+            ) {
+
+                options.seed =
+                    generationState.seed;
+
+            }
+
+
             const generated =
                 ScenarioAdapter.generate(
-                    scenario
+                    scenario,
+                    options
                 );
+
+
+            /*
+            * Mémorisation de la génération réellement
+            * retenue par Scenario Adapter.
+            */
+            generationState = {
+
+                seed:
+                    generated.seed,
+
+                questSeed:
+                    generated
+                        .result
+                        ?.questSeed
+                    ?? generated.seed,
+
+                mapSeed:
+                    generated
+                        .result
+                        ?.mapSeed
+                    ?? null,
+
+                attempt:
+                    generated.attempt
+
+            };
+
+
+            /*
+            * La génération devient immédiatement
+            * persistante.
+            */
+            savePlaytestState();
 
 
             showWarnings(
@@ -748,8 +911,11 @@ const ScenarioPlaytest = (() => {
                     "generation-data"
                 )
                 .textContent =
+
                 `Seed ${generated.seed} • ` +
+
                 `tentative ${generated.attempt} • ` +
+
                 `${generated.result.map.placedTiles} tuiles`;
 
 
@@ -775,9 +941,14 @@ const ScenarioPlaytest = (() => {
 
         catch (error) {
 
-            console.error(error);
+            console.error(
+                error
+            );
 
-            showError(error);
+
+            showError(
+                error
+            );
 
         }
 
@@ -806,7 +977,13 @@ const ScenarioPlaytest = (() => {
                 )
                 .addEventListener(
                     "click",
-                    generateMap
+                    () => {
+
+                        generateMap(
+                            true
+                        );
+
+                    }
                 );
 
 
