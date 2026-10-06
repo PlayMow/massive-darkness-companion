@@ -263,3 +263,109 @@ button,
     }
 
 }
+
+
+/* NARRATIVE */
+
+.narrative-heading {
+    margin-bottom: 20px;
+}
+
+
+.narrative-heading h3 {
+    margin: 0 0 4px;
+
+    font-family: "Ferrum", sans-serif;
+    font-size: 25px;
+    font-weight: normal;
+}
+
+
+.narrative-heading p {
+    margin: 0;
+
+    color: #aaa69f;
+    font-size: 12px;
+}
+
+
+.playtest-narrative-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+
+.playtest-narrative-card {
+    padding: 20px;
+
+    background: #292929;
+
+    border: 1px solid #3a3a3a;
+    border-radius: 10px;
+}
+
+
+.playtest-narrative-card.is-secret {
+    border-style: dashed;
+}
+
+
+.playtest-narrative-type {
+    margin-bottom: 5px;
+
+    color: #c89a52;
+
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+
+.playtest-narrative-card h4 {
+    margin: 0 0 12px;
+
+    font-family: "Ferrum", sans-serif;
+    font-size: 22px;
+    font-weight: normal;
+}
+
+
+.playtest-narrative-text {
+    max-width: 900px;
+
+    margin: 0;
+
+    color: #c8c4bd;
+
+    line-height: 1.65;
+
+    white-space: pre-wrap;
+}
+
+
+.playtest-narrative-locked {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+
+    padding: 14px 16px;
+
+    background: #171717;
+
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+
+    color: #aaa69f;
+}
+
+
+@media (max-width: 800px) {
+
+    .playtest-narrative-locked {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+}

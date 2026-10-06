@@ -14,6 +14,30 @@ const ScenarioPlaytest = (() => {
 
     let scenario;
 
+    const revealedNarrativeBlocks =
+        new Set();
+
+    const NARRATIVE_TYPE_LABELS = {
+
+        introduction:
+            "Introduction",
+
+        event:
+            "Événement",
+
+        boss:
+            "Boss",
+
+        reward:
+            "Récompense",
+
+        epilogue:
+            "Épilogue",
+
+        custom:
+            "Narration"
+
+    };
 
     function readScenario() {
 
@@ -113,30 +137,6 @@ const ScenarioPlaytest = (() => {
                 ? `${campaignTitle} • Chapitre ${chapter}`
 
                 : `Chapitre ${chapter}`;
-
-
-        /*
-        * ------------------------------------------------
-        * INTRODUCTION
-        * ------------------------------------------------
-        */
-
-        const introduction =
-            scenario
-                .narrative
-                ?.find(
-                    block =>
-                        block.type ===
-                        "introduction"
-                );
-
-
-        document
-            .getElementById(
-                "scenario-story"
-            )
-            .textContent =
-            introduction?.text || "";
 
 
         /*
@@ -268,6 +268,246 @@ const ScenarioPlaytest = (() => {
 
     }
 
+    function createNarrativeCard(
+        block
+    ) {
+
+        const revealed =
+            block.visibility ===
+                "visible"
+
+            ||
+
+            revealedNarrativeBlocks
+                .has(
+                    block.id
+                );
+
+
+        const card =
+            document.createElement(
+                "article"
+            );
+
+
+        card.className =
+            "playtest-narrative-card";
+
+
+        /*
+        * TYPE
+        */
+
+        const type =
+            document.createElement(
+                "div"
+            );
+
+
+        type.className =
+            "playtest-narrative-type";
+
+
+        type.textContent =
+            NARRATIVE_TYPE_LABELS[
+                block.type
+            ]
+            ||
+            "Narration";
+
+
+        card.appendChild(
+            type
+        );
+
+
+        /*
+        * TITRE
+        */
+
+        const title =
+            document.createElement(
+                "h4"
+            );
+
+
+        if (
+            !revealed &&
+            block.hideTitle
+        ) {
+
+            title.textContent =
+                "Événement caché";
+
+            card.classList.add(
+                "is-secret"
+            );
+
+        }
+
+        else {
+
+            title.textContent =
+                block.title ||
+                "Sans titre";
+
+        }
+
+
+        card.appendChild(
+            title
+        );
+
+
+        /*
+        * CONTENU RÉVÉLÉ
+        */
+
+        if (revealed) {
+
+            const text =
+                document.createElement(
+                    "p"
+                );
+
+
+            text.className =
+                "playtest-narrative-text";
+
+
+            text.textContent =
+                block.text || "";
+
+
+            card.appendChild(
+                text
+            );
+
+
+            return card;
+
+        }
+
+
+        /*
+        * CONTENU CACHÉ
+        */
+
+        const locked =
+            document.createElement(
+                "div"
+            );
+
+
+        locked.className =
+            "playtest-narrative-locked";
+
+
+        const message =
+            document.createElement(
+                "span"
+            );
+
+
+        message.textContent =
+            "Contenu caché";
+
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+
+        button.type =
+            "button";
+
+
+        button.className =
+            "primary-button";
+
+
+        button.textContent =
+            "Révéler";
+
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                const confirmed =
+                    window.confirm(
+                        "Révéler ce contenu caché ?\n\nCette action peut dévoiler un élément important de la quête."
+                    );
+
+
+                if (!confirmed) {
+
+                    return;
+
+                }
+
+
+                revealedNarrativeBlocks
+                    .add(
+                        block.id
+                    );
+
+
+                renderNarrative();
+
+            }
+        );
+
+
+        locked.appendChild(
+            message
+        );
+
+
+        locked.appendChild(
+            button
+        );
+
+
+        card.appendChild(
+            locked
+        );
+
+
+        return card;
+
+    }    
+
+    function renderNarrative() {
+
+        const container =
+            document.getElementById(
+                "narrative-list"
+            );
+
+
+        container.innerHTML =
+            "";
+
+
+        const blocks =
+            scenario.narrative || [];
+
+
+        blocks.forEach(
+            block => {
+
+                container.appendChild(
+                    createNarrativeCard(
+                        block
+                    )
+                );
+
+            }
+        );
+
+    }
 
     function showWarnings(
         warnings
@@ -445,6 +685,8 @@ const ScenarioPlaytest = (() => {
 
 
             renderScenarioInfo();
+
+            renderNarrative();
 
 
             document
