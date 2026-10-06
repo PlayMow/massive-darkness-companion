@@ -18,12 +18,22 @@ const ScenarioPlaytest = (() => {
 
     let scenario;
 
+
     const revealedNarrativeBlocks =
         new Set();
 
     let saveId = null;
 
+
     let saveCreatedAt = null;
+
+
+    let playtestStatus =
+        "in-progress";
+
+
+    let completedAt =
+        null;
 
 
     let generationState = {
@@ -94,6 +104,16 @@ const ScenarioPlaytest = (() => {
 
             saveCreatedAt =
                 save.createdAt || null;
+
+
+            playtestStatus =
+                save.status === "completed"
+                    ? "completed"
+                    : "in-progress";
+
+
+            completedAt =
+                save.completedAt || null;                
 
 
             const generation =
@@ -174,19 +194,25 @@ const ScenarioPlaytest = (() => {
             scenarioId:
                 scenario.id,
 
+
             scenarioRevision:
                 scenario.revision || 1,
 
 
             status:
-                "in-progress",
+                playtestStatus,
 
 
             createdAt:
                 saveCreatedAt,
 
+
             updatedAt:
                 now,
+
+
+            completedAt:
+                completedAt,  
 
 
             generation: {
@@ -642,6 +668,18 @@ const ScenarioPlaytest = (() => {
         button.textContent =
             "Révéler";
 
+        if (
+            playtestStatus ===
+            "completed"
+        ) {
+
+            button.disabled = true;
+
+            button.textContent =
+                "Quête terminée";
+
+        }            
+
 
         button.addEventListener(
             "click",
@@ -668,6 +706,8 @@ const ScenarioPlaytest = (() => {
                 savePlaytestState();
                 
                 renderNarrative();
+
+                renderPlaytestState();
 
             }
         );
@@ -721,6 +761,115 @@ const ScenarioPlaytest = (() => {
         );
 
     }
+
+    function renderPlaytestState() {
+
+        const hiddenBlocks =
+            (
+                scenario.narrative || []
+            )
+                .filter(
+                    block =>
+                        block.visibility ===
+                        "hidden"
+                );
+
+
+        const revealedCount =
+            hiddenBlocks
+                .filter(
+                    block =>
+                        revealedNarrativeBlocks
+                            .has(
+                                block.id
+                            )
+                )
+                .length;
+
+
+        /*
+        * STATUT
+        */
+
+        const status =
+            document.getElementById(
+                "playtest-status"
+            );
+
+
+        const completed =
+            playtestStatus ===
+            "completed";
+
+
+        status.textContent =
+            completed
+                ? "Quête terminée"
+                : "Partie en cours";
+
+
+        status.classList.toggle(
+            "is-completed",
+            completed
+        );
+
+
+        /*
+        * PROGRESSION NARRATIVE
+        */
+
+        document
+            .getElementById(
+                "narrative-progress"
+            )
+            .textContent =
+
+            `${revealedCount} / ${hiddenBlocks.length} révélations`;
+
+
+        /*
+        * SAUVEGARDE
+        */
+
+        document
+            .getElementById(
+                "save-indicator"
+            )
+            .textContent =
+
+            saveId
+                ? "Sauvegarde locale active"
+                : "Nouvelle partie";
+
+
+        /*
+        * ACTIONS
+        */
+
+        const completeButton =
+            document.getElementById(
+                "complete-scenario"
+            );
+
+
+        completeButton.disabled =
+            completed;
+
+
+        completeButton.textContent =
+            completed
+                ? "Quête terminée"
+                : "Terminer la quête";
+
+
+        document
+            .getElementById(
+                "regenerate-map"
+            )
+            .disabled =
+            completed;
+
+    }    
 
     function showWarnings(
         warnings
@@ -954,6 +1103,55 @@ const ScenarioPlaytest = (() => {
 
     }
 
+    function completeScenario() {
+
+        if (
+            playtestStatus ===
+            "completed"
+        ) {
+
+            return;
+
+        }
+
+
+        const confirmed =
+            window.confirm(
+                "Terminer cette quête ?\n\n" +
+                "La partie sera marquée comme terminée et son état actuel sera sauvegardé."
+            );
+
+
+        if (!confirmed) {
+
+            return;
+
+        }
+
+
+        playtestStatus =
+            "completed";
+
+
+        completedAt =
+            new Date()
+                .toISOString();
+
+
+        savePlaytestState();
+
+
+        /*
+        * On recrée les cartes afin de
+        * désactiver leurs boutons Révéler.
+        */
+        renderNarrative();
+
+
+        renderPlaytestState();
+
+    }
+
     function restartScenario() {
 
         const confirmed =
@@ -987,6 +1185,14 @@ const ScenarioPlaytest = (() => {
         saveId = null;
 
         saveCreatedAt = null;
+
+
+        playtestStatus =
+            "in-progress";
+
+
+        completedAt =
+            null;
 
 
         /*
@@ -1029,6 +1235,8 @@ const ScenarioPlaytest = (() => {
             true
         );
 
+        renderPlaytestState();
+
     }    
 
     function initialize() {
@@ -1046,6 +1254,17 @@ const ScenarioPlaytest = (() => {
 
         renderNarrative();
 
+        renderPlaytestState();
+
+            document
+                .getElementById(
+                    "complete-scenario"
+                )
+                .addEventListener(
+                    "click",
+                    completeScenario
+                );
+
 
             document
                 .getElementById(
@@ -1056,7 +1275,7 @@ const ScenarioPlaytest = (() => {
                     restartScenario
                 );
 
-                
+
             document
                 .getElementById(
                     "regenerate-map"
