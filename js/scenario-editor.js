@@ -36,6 +36,22 @@ const ScenarioEditor = (() => {
 
     ];
 
+    const NARRATIVE_TYPE_LABELS = {
+
+        introduction: "Introduction",
+
+        event: "Événement",
+
+        boss: "Boss",
+
+        reward: "Récompense",
+
+        epilogue: "Épilogue",
+
+        custom: "Personnalisé"
+
+    };
+
     const TILE_ENVIRONMENTS = [
 
     {
@@ -240,6 +256,45 @@ const ScenarioEditor = (() => {
                 ${label}
             </option>
         `;
+
+    }
+
+
+    function narrativeTypeOptions(
+        selected
+    ) {
+
+        return Object
+            .entries(
+                NARRATIVE_TYPE_LABELS
+            )
+            .map(
+                ([value, label]) => {
+
+                    /*
+                    * L'introduction est spéciale :
+                    * on ne permet pas de transformer
+                    * librement un autre bloc en introduction.
+                    */
+                    if (
+                        value === "introduction" &&
+                        selected !== "introduction"
+                    ) {
+
+                        return "";
+
+                    }
+
+
+                    return option(
+                        value,
+                        label,
+                        selected
+                    );
+
+                }
+            )
+            .join("");
 
     }
 
@@ -493,6 +548,412 @@ const ScenarioEditor = (() => {
         return card;
 
     }
+
+    function createNarrativeCard(
+        block
+    ) {
+
+        const card =
+            document.createElement(
+                "article"
+            );
+
+
+        const isIntroduction =
+            block.type ===
+            "introduction";
+
+
+        card.className =
+            "narrative-card";
+
+
+        card.dataset.narrativeId =
+            block.id;
+
+
+        card.dataset.narrativeType =
+            block.type;
+
+
+        card.innerHTML = `
+
+            <div class="narrative-card__header">
+
+                <div>
+
+                    <strong>
+                        ${
+                            isIntroduction
+                                ? "Introduction"
+                                : "Bloc narratif"
+                        }
+                    </strong>
+
+                    <small>
+                        ${
+                            isIntroduction
+                                ? "Visible au début du scénario."
+                                : "Révélation narrative du scénario."
+                        }
+                    </small>
+
+                </div>
+
+
+                ${
+                    isIntroduction
+                        ? ""
+                        : `
+
+                            <div class="narrative-card__actions">
+
+                                <button
+                                    type="button"
+                                    class="secondary-button narrative-move-button"
+                                    data-action="up"
+                                    title="Monter"
+                                >
+                                    ↑
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    class="secondary-button narrative-move-button"
+                                    data-action="down"
+                                    title="Descendre"
+                                >
+                                    ↓
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    class="danger-button"
+                                    data-action="remove"
+                                >
+                                    Supprimer
+                                </button>
+
+                            </div>
+
+                        `
+                }
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <label>
+
+                    Type
+
+                    <select
+                        data-field="type"
+                        ${isIntroduction ? "disabled" : ""}
+                    >
+
+                        ${narrativeTypeOptions(
+                            block.type
+                        )}
+
+                    </select>
+
+                </label>
+
+
+                <label>
+
+                    Titre
+
+                    <input
+                        data-field="title"
+                        type="text"
+                        value="${escapeAttribute(
+                            block.title
+                        )}"
+                        placeholder="Ex. Le sceau est brisé"
+                    >
+
+                </label>
+
+
+                <label class="field-full">
+
+                    Texte
+
+                    <textarea
+                        data-field="text"
+                        rows="6"
+                        placeholder="Texte révélé au joueur..."
+                    >${escapeAttribute(
+                        block.text
+                    )}</textarea>
+
+                </label>
+
+
+                <label>
+
+                    Visibilité initiale
+
+                    <select
+                        data-field="visibility"
+                        ${isIntroduction ? "disabled" : ""}
+                    >
+
+                        ${option(
+                            "visible",
+                            "Visible dès le départ",
+                            block.visibility
+                        )}
+
+                        ${option(
+                            "hidden",
+                            "Caché jusqu'à révélation",
+                            block.visibility
+                        )}
+
+                    </select>
+
+                </label>
+
+
+                <label
+                    class="checkbox-field narrative-hide-title"
+                >
+
+                    <input
+                        data-field="hideTitle"
+                        type="checkbox"
+                        ${
+                            block.hideTitle
+                                ? "checked"
+                                : ""
+                        }
+                        ${
+                            isIntroduction
+                                ? "disabled"
+                                : ""
+                        }
+                    >
+
+                    <span>
+
+                        <strong>
+                            Cacher également le titre
+                        </strong>
+
+                        <small>
+                            Évite qu'un titre révèle prématurément un événement.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+            </div>
+
+        `;
+
+
+        /*
+        * Mise à jour visuelle uniquement pour l'instant.
+        * Le JSON v2 sera branché à l'étape suivante.
+        */
+        card
+            .querySelectorAll(
+                "input, textarea, select"
+            )
+            .forEach(control => {
+
+                control.addEventListener(
+                    "input",
+                    renderPreview
+                );
+
+                control.addEventListener(
+                    "change",
+                    renderPreview
+                );
+
+            });
+
+
+        const removeButton =
+            card.querySelector(
+                '[data-action="remove"]'
+            );
+
+
+        if (removeButton) {
+
+            removeButton.addEventListener(
+                "click",
+                () => {
+
+                    card.remove();
+
+                    updateNarrativeButtons();
+
+                    renderPreview();
+
+                }
+            );
+
+        }
+
+
+        const upButton =
+            card.querySelector(
+                '[data-action="up"]'
+            );
+
+
+        if (upButton) {
+
+            upButton.addEventListener(
+                "click",
+                () => {
+
+                    const previous =
+                        card.previousElementSibling;
+
+
+                    /*
+                    * L'introduction reste toujours
+                    * le premier bloc.
+                    */
+                    if (
+                        previous &&
+                        previous.dataset
+                            .narrativeType !==
+                            "introduction"
+                    ) {
+
+                        card.parentElement
+                            .insertBefore(
+                                card,
+                                previous
+                            );
+
+                    }
+
+
+                    updateNarrativeButtons();
+
+                    renderPreview();
+
+                }
+            );
+
+        }
+
+
+        const downButton =
+            card.querySelector(
+                '[data-action="down"]'
+            );
+
+
+        if (downButton) {
+
+            downButton.addEventListener(
+                "click",
+                () => {
+
+                    const next =
+                        card.nextElementSibling;
+
+
+                    if (next) {
+
+                        card.parentElement
+                            .insertBefore(
+                                next,
+                                card
+                            );
+
+                    }
+
+
+                    updateNarrativeButtons();
+
+                    renderPreview();
+
+                }
+            );
+
+        }
+
+
+        return card;
+
+    }
+
+    function updateNarrativeButtons() {
+
+        const cards = [
+
+            ...document.querySelectorAll(
+                ".narrative-card"
+            )
+
+        ];
+
+
+        const movableCards =
+            cards.filter(
+                card =>
+                    card.dataset
+                        .narrativeType !==
+                        "introduction"
+            );
+
+
+        movableCards
+            .forEach(
+                (
+                    card,
+                    index
+                ) => {
+
+                    const up =
+                        card.querySelector(
+                            '[data-action="up"]'
+                        );
+
+
+                    const down =
+                        card.querySelector(
+                            '[data-action="down"]'
+                        );
+
+
+                    if (up) {
+
+                        up.disabled =
+                            index === 0;
+
+                    }
+
+
+                    if (down) {
+
+                        down.disabled =
+                            index ===
+                            movableCards.length - 1;
+
+                    }
+
+                }
+            );
+
+    }    
 
     function populateTileEnvironments() {
 
@@ -1167,6 +1628,39 @@ const ScenarioEditor = (() => {
     function initialize() {
 
         populateTileConfiguration();
+
+        document
+            .getElementById(
+                "add-narrative"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    const block =
+                        ScenarioSchema
+                            .createNarrativeBlock(
+                                "event"
+                            );
+
+
+                    document
+                        .getElementById(
+                            "narrative-list"
+                        )
+                        .appendChild(
+                            createNarrativeCard(
+                                block
+                            )
+                        );
+
+
+                    updateNarrativeButtons();
+
+                    renderPreview();
+
+                }
+            );
 
         document
             .getElementById("add-component")
