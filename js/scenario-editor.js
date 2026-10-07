@@ -1707,15 +1707,90 @@ const ScenarioEditor = (() => {
             readScenario();
 
 
+        /*
+        * ------------------------------------------------
+        * BROUILLON
+        * ------------------------------------------------
+        *
+        * Le brouillon est toujours sauvegardé,
+        * même si le scénario est encore incomplet.
+        */
+
         localStorage.setItem(
+
             STORAGE_KEY,
-            JSON.stringify(scenario)
+
+            JSON.stringify(
+                scenario
+            )
+
         );
 
 
-        setStatus(
-            "Brouillon enregistré localement."
-        );
+        /*
+        * ------------------------------------------------
+        * VALIDATION
+        * ------------------------------------------------
+        */
+
+        const validation =
+            ScenarioSchema.validate(
+                scenario
+            );
+
+
+        /*
+        * Un scénario incomplet reste un brouillon.
+        *
+        * On ne remplace pas une éventuelle version
+        * valide déjà présente dans la bibliothèque.
+        */
+
+        if (
+            !validation.valid
+        ) {
+
+            setStatus(
+                "Brouillon enregistré — scénario incomplet, bibliothèque inchangée."
+            );
+
+
+            return;
+
+        }
+
+
+        /*
+        * ------------------------------------------------
+        * BIBLIOTHÈQUE
+        * ------------------------------------------------
+        */
+
+        try {
+
+            ScenarioStore.save(
+                scenario
+            );
+
+
+            setStatus(
+                "Brouillon et scénario enregistrés dans la bibliothèque."
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            setStatus(
+                "Brouillon enregistré, mais erreur lors de la mise à jour de la bibliothèque."
+            );
+
+        }
 
     }
 
