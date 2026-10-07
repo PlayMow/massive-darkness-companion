@@ -1256,6 +1256,7 @@ const ScenarioPlaytest = (() => {
 
         renderPlaytestState();
 
+        
             document
                 .getElementById(
                     "complete-scenario"
