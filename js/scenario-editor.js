@@ -2057,6 +2057,18 @@ const ScenarioEditor = (() => {
         }            
 
         /*
+        * Le Playtest ne peut être lancé
+        * qu'avec un scénario valide.
+        *
+        * On synchronise donc automatiquement
+        * cette version avec la bibliothèque.
+        */
+        ScenarioStore.save(
+            scenario
+        );
+
+
+        /*
         * On sauvegarde également le brouillon :
         * revenir depuis le Playtest ne fera donc
         * pas perdre les modifications.
