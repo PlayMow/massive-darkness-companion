@@ -313,6 +313,248 @@ window.CampaignProgress = (() => {
 
     }
 
+    /*
+    * ------------------------------------------------
+    * ÉTAT D'UN CHAPITRE
+    * ------------------------------------------------
+    */
+
+    function isChapterComplete(
+        chapter,
+        progress
+    ) {
+
+        return chapter.scenarios
+            .every(
+                scenarioId =>
+                    progress
+                        .completedScenarios
+                        .includes(
+                            scenarioId
+                        )
+            );
+
+    }
+
+
+    /*
+    * ------------------------------------------------
+    * TERMINER UN SCÉNARIO
+    * ------------------------------------------------
+    */
+
+    function completeScenario(
+        campaign,
+        scenarioId
+    ) {
+
+        /*
+        * La campagne doit toujours être valide
+        * avant de modifier sa progression.
+        */
+
+        const validation =
+            CampaignSchema.validate(
+                campaign
+            );
+
+
+        if (
+            !validation.valid
+        ) {
+
+            throw new Error(
+                "Impossible de mettre à jour une campagne invalide."
+            );
+
+        }
+
+
+        /*
+        * On cherche dans quel chapitre
+        * se trouve le scénario.
+        */
+
+        const chapterIndex =
+            campaign.chapters
+                .findIndex(
+                    chapter =>
+                        chapter.scenarios
+                            .includes(
+                                scenarioId
+                            )
+                );
+
+
+        if (
+            chapterIndex === -1
+        ) {
+
+            throw new Error(
+                `Le scénario ${scenarioId} n'appartient pas à cette campagne.`
+            );
+
+        }
+
+
+        const chapter =
+            campaign
+                .chapters[
+                    chapterIndex
+                ];
+
+
+        /*
+        * On charge la progression existante
+        * ou on en crée une si nécessaire.
+        */
+
+        const progress =
+            getOrCreate(
+                campaign
+            );
+
+
+        /*
+        * Un scénario appartenant à un chapitre
+        * encore verrouillé ne peut pas être terminé.
+        */
+
+        if (
+            !progress
+                .unlockedChapters
+                .includes(
+                    chapter.id
+                )
+        ) {
+
+            throw new Error(
+                "Ce chapitre est encore verrouillé."
+            );
+
+        }
+
+
+        /*
+        * ------------------------------------------------
+        * SCÉNARIO TERMINÉ
+        * ------------------------------------------------
+        *
+        * On utilise un Set pour empêcher
+        * les doublons.
+        */
+
+        const completedScenarios =
+            new Set(
+                progress
+                    .completedScenarios
+            );
+
+
+        completedScenarios.add(
+            scenarioId
+        );
+
+
+        const updatedProgress = {
+
+            ...progress,
+
+            campaignRevision:
+                campaign.revision || 1,
+
+            completedScenarios:
+                [
+                    ...completedScenarios
+                ]
+
+        };
+
+
+        /*
+        * ------------------------------------------------
+        * CHAPITRE TERMINÉ ?
+        * ------------------------------------------------
+        */
+
+        const chapterCompleted =
+            isChapterComplete(
+                chapter,
+                updatedProgress
+            );
+
+
+        if (
+            chapterCompleted
+        ) {
+
+            const nextChapter =
+                campaign
+                    .chapters[
+                        chapterIndex + 1
+                    ];
+
+
+            /*
+            * Un chapitre suivant existe :
+            * on le débloque.
+            */
+
+            if (nextChapter) {
+
+                const unlockedChapters =
+                    new Set(
+                        updatedProgress
+                            .unlockedChapters
+                    );
+
+
+                unlockedChapters.add(
+                    nextChapter.id
+                );
+
+
+                updatedProgress
+                    .unlockedChapters =
+                    [
+                        ...unlockedChapters
+                    ];
+
+            }
+
+
+            /*
+            * Aucun chapitre suivant :
+            * nous venons de terminer
+            * le dernier chapitre.
+            */
+
+            else {
+
+                updatedProgress.status =
+                    "completed";
+
+
+                updatedProgress.completedAt =
+                    updatedProgress.completedAt ||
+                    new Date()
+                        .toISOString();
+
+            }
+
+        }
+
+
+        /*
+        * La progression est sauvegardée
+        * immédiatement.
+        */
+
+        return save(
+            updatedProgress
+        );
+
+    }    
 
     /*
      * ------------------------------------------------
@@ -347,6 +589,10 @@ window.CampaignProgress = (() => {
         load,
 
         getOrCreate,
+
+        isChapterComplete,
+
+        completeScenario,
 
         reset
 
