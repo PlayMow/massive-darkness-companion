@@ -89,6 +89,20 @@ const CampaignEditor = (() => {
     * ------------------------------------------------
     */
 
+    function getAssignedScenarioIds() {
+
+        return new Set(
+
+            campaign.chapters
+                .flatMap(
+                    chapter =>
+                        chapter.scenarios || []
+                )
+
+        );
+
+    }
+
     function renderChapters() {
 
         const container =
@@ -102,12 +116,36 @@ const CampaignEditor = (() => {
             "";
 
 
+        /*
+        * Tous les scénarios disponibles
+        * dans notre bibliothèque.
+        */
+        const libraryScenarios =
+            ScenarioStore.getAll();
+
+
         campaign.chapters
             .forEach(
                 (
                     chapter,
                     index
                 ) => {
+
+                    /*
+                    * Sécurité pour d'anciens
+                    * brouillons éventuels.
+                    */
+                    if (
+                        !Array.isArray(
+                            chapter.scenarios
+                        )
+                    ) {
+
+                        chapter.scenarios =
+                            [];
+
+                    }
+
 
                     const card =
                         document
@@ -125,7 +163,9 @@ const CampaignEditor = (() => {
 
 
                     /*
+                    * ================================================
                     * HEADER
+                    * ================================================
                     */
 
                     const header =
@@ -215,7 +255,7 @@ const CampaignEditor = (() => {
 
 
                     /*
-                    * ACTIONS
+                    * ACTIONS DU CHAPITRE
                     */
 
                     const actions =
@@ -228,6 +268,10 @@ const CampaignEditor = (() => {
                     actions.className =
                         "chapter-card__actions";
 
+
+                    /*
+                    * MONTER LE CHAPITRE
+                    */
 
                     const moveUp =
                         document
@@ -296,6 +340,10 @@ const CampaignEditor = (() => {
                         }
                     );
 
+
+                    /*
+                    * DESCENDRE LE CHAPITRE
+                    */
 
                     const moveDown =
                         document
@@ -367,37 +415,36 @@ const CampaignEditor = (() => {
                     );
 
 
-                    const remove =
+                    /*
+                    * SUPPRIMER LE CHAPITRE
+                    */
+
+                    const removeChapter =
                         document
                             .createElement(
                                 "button"
                             );
 
 
-                    remove.type =
+                    removeChapter.type =
                         "button";
 
 
-                    remove.className =
+                    removeChapter.className =
                         "danger-button";
 
 
-                    remove.textContent =
+                    removeChapter.textContent =
                         "Supprimer";
 
 
-                    /*
-                    * Une campagne doit toujours
-                    * conserver au moins un chapitre.
-                    */
-
-                    remove.disabled =
+                    removeChapter.disabled =
                         campaign
                             .chapters
                             .length === 1;
 
 
-                    remove.addEventListener(
+                    removeChapter.addEventListener(
                         "click",
                         () => {
 
@@ -414,7 +461,14 @@ const CampaignEditor = (() => {
 
                             const confirmed =
                                 window.confirm(
-                                    `Supprimer le chapitre « ${chapter.title || `Chapitre ${index + 1}`} » ?`
+
+                                    `Supprimer le chapitre « ${
+                                        chapter.title ||
+                                        `Chapitre ${index + 1}`
+                                    } » ?\n\n` +
+
+                                    "Les scénarios qu'il contient seront retirés de ce chapitre mais resteront disponibles dans la bibliothèque."
+
                                 );
 
 
@@ -453,7 +507,7 @@ const CampaignEditor = (() => {
 
 
                     actions.appendChild(
-                        remove
+                        removeChapter
                     );
 
 
@@ -473,38 +527,452 @@ const CampaignEditor = (() => {
 
 
                     /*
-                    * SCÉNARIOS
-                    *
-                    * La gestion réelle arrive
-                    * en F2.
+                    * ================================================
+                    * SCÉNARIOS DU CHAPITRE
+                    * ================================================
                     */
 
-                    const empty =
+                    const scenariosSection =
                         document
                             .createElement(
                                 "div"
                             );
 
 
-                    empty.className =
-                        "chapter-card__empty";
+                    scenariosSection.className =
+                        "chapter-scenarios";
 
 
-                    const scenarioCount =
-                        chapter
-                            .scenarios
-                            ?.length
-                        || 0;
+                    const scenariosTitle =
+                        document
+                            .createElement(
+                                "div"
+                            );
 
 
-                    empty.textContent =
-                        scenarioCount
-                            ? `${scenarioCount} scénario(s) assigné(s)`
-                            : "Aucun scénario assigné pour le moment.";
+                    scenariosTitle.className =
+                        "chapter-scenarios__title";
+
+
+                    scenariosTitle.textContent =
+                        "Scénarios du chapitre";
+
+
+                    scenariosSection.appendChild(
+                        scenariosTitle
+                    );
+
+
+                    /*
+                    * LISTE DES SCÉNARIOS ACTUELS
+                    */
+
+                    const scenarioList =
+                        document
+                            .createElement(
+                                "div"
+                            );
+
+
+                    scenarioList.className =
+                        "chapter-scenarios__list";
+
+
+                    if (
+                        chapter.scenarios.length === 0
+                    ) {
+
+                        const empty =
+                            document
+                                .createElement(
+                                    "div"
+                                );
+
+
+                        empty.className =
+                            "chapter-card__empty";
+
+
+                        empty.textContent =
+                            "Aucun scénario assigné pour le moment.";
+
+
+                        scenarioList.appendChild(
+                            empty
+                        );
+
+                    }
+
+                    else {
+
+                        chapter.scenarios
+                            .forEach(
+                                scenarioId => {
+
+                                    const scenario =
+                                        ScenarioStore.get(
+                                            scenarioId
+                                        );
+
+
+                                    const row =
+                                        document
+                                            .createElement(
+                                                "div"
+                                            );
+
+
+                                    row.className =
+                                        "chapter-scenario";
+
+
+                                    /*
+                                    * INFORMATIONS
+                                    */
+
+                                    const info =
+                                        document
+                                            .createElement(
+                                                "div"
+                                            );
+
+
+                                    info.className =
+                                        "chapter-scenario__info";
+
+
+                                    const scenarioTitle =
+                                        document
+                                            .createElement(
+                                                "strong"
+                                            );
+
+
+                                    scenarioTitle.textContent =
+                                        scenario
+                                            ?.title
+                                        ||
+                                        "Scénario introuvable";
+
+
+                                    const scenarioIdText =
+                                        document
+                                            .createElement(
+                                                "small"
+                                            );
+
+
+                                    scenarioIdText.textContent =
+                                        scenarioId;
+
+
+                                    info.appendChild(
+                                        scenarioTitle
+                                    );
+
+
+                                    info.appendChild(
+                                        scenarioIdText
+                                    );
+
+
+                                    /*
+                                    * RETIRER
+                                    */
+
+                                    const removeScenario =
+                                        document
+                                            .createElement(
+                                                "button"
+                                            );
+
+
+                                    removeScenario.type =
+                                        "button";
+
+
+                                    removeScenario.className =
+                                        "danger-button";
+
+
+                                    removeScenario.textContent =
+                                        "Retirer";
+
+
+                                    removeScenario.addEventListener(
+                                        "click",
+                                        () => {
+
+                                            chapter.scenarios =
+                                                chapter.scenarios
+                                                    .filter(
+                                                        id =>
+                                                            id !==
+                                                            scenarioId
+                                                    );
+
+
+                                            /*
+                                            * On redessine tous les chapitres.
+                                            *
+                                            * Le scénario retiré redevient
+                                            * immédiatement disponible dans
+                                            * les autres menus.
+                                            */
+                                            renderChapters();
+
+                                            renderPreview();
+
+                                        }
+                                    );
+
+
+                                    row.appendChild(
+                                        info
+                                    );
+
+
+                                    row.appendChild(
+                                        removeScenario
+                                    );
+
+
+                                    scenarioList.appendChild(
+                                        row
+                                    );
+
+                                }
+                            );
+
+                    }
+
+
+                    scenariosSection.appendChild(
+                        scenarioList
+                    );
+
+
+                    /*
+                    * ================================================
+                    * AJOUTER UN SCÉNARIO
+                    * ================================================
+                    */
+
+                    const addArea =
+                        document
+                            .createElement(
+                                "div"
+                            );
+
+
+                    addArea.className =
+                        "chapter-scenario-add";
+
+
+                    const select =
+                        document
+                            .createElement(
+                                "select"
+                            );
+
+
+                    const placeholder =
+                        document
+                            .createElement(
+                                "option"
+                            );
+
+
+                    placeholder.value =
+                        "";
+
+
+                    placeholder.textContent =
+                        "Sélectionner un scénario...";
+
+
+                    select.appendChild(
+                        placeholder
+                    );
+
+
+                    /*
+                    * Tous les scénarios déjà utilisés
+                    * dans n'importe quel chapitre.
+                    */
+                    const assignedScenarioIds =
+                        getAssignedScenarioIds();
+
+
+                    const availableScenarios =
+                        libraryScenarios
+                            .filter(
+                                scenario =>
+                                    !assignedScenarioIds
+                                        .has(
+                                            scenario.id
+                                        )
+                            );
+
+
+                    availableScenarios
+                        .forEach(
+                            scenario => {
+
+                                const option =
+                                    document
+                                        .createElement(
+                                            "option"
+                                        );
+
+
+                                option.value =
+                                    scenario.id;
+
+
+                                option.textContent =
+                                    scenario.title;
+
+
+                                select.appendChild(
+                                    option
+                                );
+
+                            }
+                        );
+
+
+                    const addButton =
+                        document
+                            .createElement(
+                                "button"
+                            );
+
+
+                    addButton.type =
+                        "button";
+
+
+                    addButton.className =
+                        "primary-button";
+
+
+                    addButton.textContent =
+                        "+ Ajouter";
+
+
+                    /*
+                    * Aucun scénario disponible :
+                    * inutile de laisser les contrôles
+                    * actifs.
+                    */
+
+                    if (
+                        availableScenarios.length === 0
+                    ) {
+
+                        select.disabled =
+                            true;
+
+
+                        placeholder.textContent =
+                            libraryScenarios.length === 0
+                                ? "Aucun scénario dans la bibliothèque"
+                                : "Tous les scénarios sont déjà assignés";
+
+
+                        addButton.disabled =
+                            true;
+
+                    }
+
+
+                    addButton.addEventListener(
+                        "click",
+                        () => {
+
+                            const scenarioId =
+                                select.value;
+
+
+                            if (!scenarioId) {
+
+                                return;
+
+                            }
+
+
+                            /*
+                            * Deuxième sécurité anti-doublon.
+                            *
+                            * Même si l'interface devenait
+                            * obsolète, on vérifie à nouveau
+                            * les données avant l'ajout.
+                            */
+                            const alreadyAssigned =
+                                campaign.chapters
+                                    .some(
+                                        currentChapter =>
+                                            currentChapter
+                                                .scenarios
+                                                .includes(
+                                                    scenarioId
+                                                )
+                                    );
+
+
+                            if (
+                                alreadyAssigned
+                            ) {
+
+                                window.alert(
+                                    "Ce scénario est déjà utilisé dans cette campagne."
+                                );
+
+
+                                renderChapters();
+
+                                return;
+
+                            }
+
+
+                            chapter.scenarios
+                                .push(
+                                    scenarioId
+                                );
+
+
+                            /*
+                            * Tous les menus doivent être
+                            * recalculés puisque ce scénario
+                            * n'est désormais plus disponible.
+                            */
+                            renderChapters();
+
+                            renderPreview();
+
+                        }
+                    );
+
+
+                    addArea.appendChild(
+                        select
+                    );
+
+
+                    addArea.appendChild(
+                        addButton
+                    );
+
+
+                    scenariosSection.appendChild(
+                        addArea
+                    );
 
 
                     card.appendChild(
-                        empty
+                        scenariosSection
                     );
 
 
