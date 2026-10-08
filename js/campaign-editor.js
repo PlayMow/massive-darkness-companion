@@ -76,7 +76,444 @@ const CampaignEditor = (() => {
             campaign.description || "";
 
 
+        renderChapters();
+
         renderPreview();
+
+    }
+
+
+    /*
+    * ------------------------------------------------
+    * CHAPITRES
+    * ------------------------------------------------
+    */
+
+    function renderChapters() {
+
+        const container =
+            document
+                .getElementById(
+                    "chapters-list"
+                );
+
+
+        container.innerHTML =
+            "";
+
+
+        campaign.chapters
+            .forEach(
+                (
+                    chapter,
+                    index
+                ) => {
+
+                    const card =
+                        document
+                            .createElement(
+                                "article"
+                            );
+
+
+                    card.className =
+                        "chapter-card";
+
+
+                    card.dataset.chapterId =
+                        chapter.id;
+
+
+                    /*
+                    * HEADER
+                    */
+
+                    const header =
+                        document
+                            .createElement(
+                                "div"
+                            );
+
+
+                    header.className =
+                        "chapter-card__header";
+
+
+                    /*
+                    * TITRE
+                    */
+
+                    const titleArea =
+                        document
+                            .createElement(
+                                "div"
+                            );
+
+
+                    titleArea.className =
+                        "chapter-card__title";
+
+
+                    const number =
+                        document
+                            .createElement(
+                                "span"
+                            );
+
+
+                    number.className =
+                        "chapter-card__number";
+
+
+                    number.textContent =
+                        `Chapitre ${index + 1}`;
+
+
+                    const titleInput =
+                        document
+                            .createElement(
+                                "input"
+                            );
+
+
+                    titleInput.type =
+                        "text";
+
+
+                    titleInput.value =
+                        chapter.title || "";
+
+
+                    titleInput.placeholder =
+                        `Titre du chapitre ${index + 1}`;
+
+
+                    titleInput.addEventListener(
+                        "input",
+                        () => {
+
+                            chapter.title =
+                                titleInput
+                                    .value
+                                    .trim();
+
+
+                            renderPreview();
+
+                        }
+                    );
+
+
+                    titleArea.appendChild(
+                        number
+                    );
+
+
+                    titleArea.appendChild(
+                        titleInput
+                    );
+
+
+                    /*
+                    * ACTIONS
+                    */
+
+                    const actions =
+                        document
+                            .createElement(
+                                "div"
+                            );
+
+
+                    actions.className =
+                        "chapter-card__actions";
+
+
+                    const moveUp =
+                        document
+                            .createElement(
+                                "button"
+                            );
+
+
+                    moveUp.type =
+                        "button";
+
+
+                    moveUp.className =
+                        "secondary-button";
+
+
+                    moveUp.textContent =
+                        "↑";
+
+
+                    moveUp.title =
+                        "Monter le chapitre";
+
+
+                    moveUp.disabled =
+                        index === 0;
+
+
+                    moveUp.addEventListener(
+                        "click",
+                        () => {
+
+                            if (
+                                index === 0
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            [
+                                campaign.chapters[
+                                    index - 1
+                                ],
+                                campaign.chapters[
+                                    index
+                                ]
+                            ] = [
+
+                                campaign.chapters[
+                                    index
+                                ],
+
+                                campaign.chapters[
+                                    index - 1
+                                ]
+
+                            ];
+
+
+                            renderChapters();
+
+                            renderPreview();
+
+                        }
+                    );
+
+
+                    const moveDown =
+                        document
+                            .createElement(
+                                "button"
+                            );
+
+
+                    moveDown.type =
+                        "button";
+
+
+                    moveDown.className =
+                        "secondary-button";
+
+
+                    moveDown.textContent =
+                        "↓";
+
+
+                    moveDown.title =
+                        "Descendre le chapitre";
+
+
+                    moveDown.disabled =
+                        index ===
+                        campaign.chapters.length - 1;
+
+
+                    moveDown.addEventListener(
+                        "click",
+                        () => {
+
+                            if (
+                                index ===
+                                campaign.chapters.length - 1
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            [
+                                campaign.chapters[
+                                    index
+                                ],
+                                campaign.chapters[
+                                    index + 1
+                                ]
+                            ] = [
+
+                                campaign.chapters[
+                                    index + 1
+                                ],
+
+                                campaign.chapters[
+                                    index
+                                ]
+
+                            ];
+
+
+                            renderChapters();
+
+                            renderPreview();
+
+                        }
+                    );
+
+
+                    const remove =
+                        document
+                            .createElement(
+                                "button"
+                            );
+
+
+                    remove.type =
+                        "button";
+
+
+                    remove.className =
+                        "danger-button";
+
+
+                    remove.textContent =
+                        "Supprimer";
+
+
+                    /*
+                    * Une campagne doit toujours
+                    * conserver au moins un chapitre.
+                    */
+
+                    remove.disabled =
+                        campaign
+                            .chapters
+                            .length === 1;
+
+
+                    remove.addEventListener(
+                        "click",
+                        () => {
+
+                            if (
+                                campaign
+                                    .chapters
+                                    .length === 1
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            const confirmed =
+                                window.confirm(
+                                    `Supprimer le chapitre « ${chapter.title || `Chapitre ${index + 1}`} » ?`
+                                );
+
+
+                            if (
+                                !confirmed
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            campaign.chapters
+                                .splice(
+                                    index,
+                                    1
+                                );
+
+
+                            renderChapters();
+
+                            renderPreview();
+
+                        }
+                    );
+
+
+                    actions.appendChild(
+                        moveUp
+                    );
+
+
+                    actions.appendChild(
+                        moveDown
+                    );
+
+
+                    actions.appendChild(
+                        remove
+                    );
+
+
+                    header.appendChild(
+                        titleArea
+                    );
+
+
+                    header.appendChild(
+                        actions
+                    );
+
+
+                    card.appendChild(
+                        header
+                    );
+
+
+                    /*
+                    * SCÉNARIOS
+                    *
+                    * La gestion réelle arrive
+                    * en F2.
+                    */
+
+                    const empty =
+                        document
+                            .createElement(
+                                "div"
+                            );
+
+
+                    empty.className =
+                        "chapter-card__empty";
+
+
+                    const scenarioCount =
+                        chapter
+                            .scenarios
+                            ?.length
+                        || 0;
+
+
+                    empty.textContent =
+                        scenarioCount
+                            ? `${scenarioCount} scénario(s) assigné(s)`
+                            : "Aucun scénario assigné pour le moment.";
+
+
+                    card.appendChild(
+                        empty
+                    );
+
+
+                    container.appendChild(
+                        card
+                    );
+
+                }
+            );
 
     }
 
@@ -293,6 +730,35 @@ const CampaignEditor = (() => {
                 "click",
                 saveDraft
             );
+
+
+        document
+            .getElementById(
+                "add-chapter"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    const chapter =
+                        CampaignSchema
+                            .createChapter(
+                                `Chapitre ${campaign.chapters.length + 1}`
+                            );
+
+
+                    campaign.chapters
+                        .push(
+                            chapter
+                        );
+
+
+                    renderChapters();
+
+                    renderPreview();
+
+                }
+            );   
 
 
         document

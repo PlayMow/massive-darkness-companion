@@ -337,17 +337,40 @@ textarea {
 }
 
 
-/* CHAPTER PLACEHOLDER */
+/* CHAPTERS */
 
-.chapters-placeholder {
+.section-heading--action {
 
-    display: flex;
+    justify-content:
+        space-between;
+
+}
+
+
+.section-heading--action
+> .section-heading {
+
+    margin:
+        0;
+
+}
+
+
+.chapters-list {
+
+    display:
+        flex;
 
     flex-direction:
         column;
 
     gap:
-        8px;
+        16px;
+
+}
+
+
+.chapter-card {
 
     padding:
         20px;
@@ -365,10 +388,88 @@ textarea {
 }
 
 
-.chapters-placeholder span {
+.chapter-card__header {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        flex-start;
+
+    gap:
+        20px;
+
+}
+
+
+.chapter-card__title {
+
+    flex:
+        1;
+
+}
+
+
+.chapter-card__number {
+
+    display:
+        block;
+
+    margin-bottom:
+        7px;
+
+    color:
+        var(--accent);
+
+    font-size:
+        11px;
+
+    letter-spacing:
+        1px;
+
+    text-transform:
+        uppercase;
+
+}
+
+
+.chapter-card__actions {
+
+    display:
+        flex;
+
+    flex-wrap:
+        wrap;
+
+    gap:
+        8px;
+
+}
+
+
+.chapter-card__empty {
+
+    margin:
+        18px 0 0;
+
+    padding:
+        14px;
 
     color:
         var(--text-muted);
+
+    background:
+        #171717;
+
+    border:
+        1px dashed
+        var(--border);
+
+    border-radius:
+        8px;
 
     font-size:
         13px;
