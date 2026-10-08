@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Campaign Editor — Massive Darkness Companion
+    </title>
+
+
+    <link
+        rel="stylesheet"
+        href="style/Ferrum/stylesheet.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style/Seshat/stylesheet.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style/campaign-editor.css"
+    >
+
+
+    <script
+        src="js/scenario-schema.js"
+        defer
+    ></script>
+
+    <script
+        src="js/scenario-store.js"
+        defer
+    ></script>
+
+    <script
+        src="js/campaign-schema.js"
+        defer
+    ></script>
+
+    <script
+        src="js/campaign-store.js"
+        defer
+    ></script>
+
+    <script
+        src="js/campaign-progress.js"
+        defer
+    ></script>
+
+    <script
+        src="js/campaign-editor.js"
+        defer
+    ></script>
+
+</head>
+
+
+<body>
+
+    <header class="editor-header">
+
+        <div>
+
+            <div class="editor-kicker">
+                MASSIVE DARKNESS COMPANION
+            </div>
+
+            <h1>
+                Campaign Editor
+            </h1>
+
+        </div>
+
+
+        <a
+            class="secondary-button"
+            href="scenario-editor.html"
+        >
+            Scenario Editor
+        </a>
+
+    </header>
+
+
+    <main class="editor-layout">
+
+        <form id="campaign-form">
+
+            <section class="editor-panel">
+
+                <div class="section-heading">
+
+                    <span>01</span>
+
+                    <div>
+
+                        <h2>
+                            Campagne
+                        </h2>
+
+                        <p>
+                            Informations générales de la campagne.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <label class="field-full">
+
+                        Titre de la campagne
+
+                        <input
+                            id="campaign-title"
+                            type="text"
+                            placeholder="Ex. La Couronne du Roi Mort"
+                        >
+
+                    </label>
+
+
+                    <label class="field-full">
+
+                        Description
+
+                        <textarea
+                            id="campaign-description"
+                            rows="6"
+                            placeholder="Présentation générale de la campagne..."
+                        ></textarea>
+
+                    </label>
+
+                </div>
+
+            </section>
+
+
+            <section class="editor-panel">
+
+                <div class="section-heading">
+
+                    <span>02</span>
+
+                    <div>
+
+                        <h2>
+                            Chapitres
+                        </h2>
+
+                        <p>
+                            L'organisation détaillée des chapitres sera ajoutée à l'étape suivante.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="chapters-placeholder"
+                    class="chapters-placeholder"
+                >
+
+                    <strong>
+                        Chapitre 1
+                    </strong>
+
+                    <span>
+                        Aucun scénario assigné pour le moment.
+                    </span>
+
+                </div>
+
+            </section>
+
+        </form>
+
+
+        <aside class="preview-column">
+
+            <section class="editor-panel preview-panel">
+
+                <div class="section-heading">
+
+                    <span>JSON</span>
+
+                    <div>
+
+                        <h2>
+                            Définition de la campagne
+                        </h2>
+
+                        <p>
+                            Données générées par l'éditeur.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <pre id="json-preview"></pre>
+
+            </section>
+
+        </aside>
+
+    </main>
+
+
+    <footer class="editor-actions">
+
+        <div id="editor-status"></div>
+
+
+        <div class="editor-actions__buttons">
+
+            <button
+                id="save-draft"
+                class="secondary-button"
+                type="button"
+            >
+                Enregistrer le brouillon
+            </button>
+
+        </div>
+
+    </footer>
+
+</body>
+
+</html>
