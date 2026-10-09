@@ -1701,6 +1701,64 @@ const ScenarioEditor = (() => {
     }
 
 
+    function newScenario() {
+
+        const confirmed =
+            window.confirm(
+                "Créer un nouveau scénario ?\n\n" +
+                "Le scénario actuellement affiché restera dans la bibliothèque s'il a déjà été enregistré."
+            );
+
+
+        if (
+            !confirmed
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+        * Création d'un scénario entièrement neuf.
+        *
+        * defaultScenario() génère notamment
+        * un nouvel ID unique.
+        */
+        const scenario =
+            defaultScenario();
+
+
+        /*
+        * Le nouveau scénario devient
+        * le brouillon actuellement édité.
+        */
+        localStorage.setItem(
+
+            STORAGE_KEY,
+
+            JSON.stringify(
+                scenario
+            )
+
+        );
+
+
+        /*
+        * Injection dans l'interface.
+        */
+        writeScenario(
+            scenario
+        );
+
+
+        setStatus(
+            "Nouveau scénario créé."
+        );
+
+    }
+    
+
     function saveDraft() {
 
         const scenario =
@@ -2163,6 +2221,14 @@ const ScenarioEditor = (() => {
                 }
             );
 
+        document
+            .getElementById(
+                "new-scenario"
+            )
+            .addEventListener(
+                "click",
+                newScenario
+            );
 
         document
             .getElementById("save-draft")

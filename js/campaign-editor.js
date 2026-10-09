@@ -607,7 +607,10 @@ const CampaignEditor = (() => {
 
                         chapter.scenarios
                             .forEach(
-                                scenarioId => {
+                                (
+                                    scenarioId,
+                                    scenarioIndex
+                                ) => {
 
                                     const scenario =
                                         ScenarioStore.get(
@@ -627,7 +630,9 @@ const CampaignEditor = (() => {
 
 
                                     /*
+                                    * ================================================
                                     * INFORMATIONS
+                                    * ================================================
                                     */
 
                                     const info =
@@ -677,6 +682,169 @@ const CampaignEditor = (() => {
 
 
                                     /*
+                                    * ================================================
+                                    * ACTIONS
+                                    * ================================================
+                                    */
+
+                                    const scenarioActions =
+                                        document
+                                            .createElement(
+                                                "div"
+                                            );
+
+
+                                    scenarioActions.className =
+                                        "chapter-scenario__actions";
+
+
+                                    /*
+                                    * MONTER
+                                    */
+
+                                    const moveScenarioUp =
+                                        document
+                                            .createElement(
+                                                "button"
+                                            );
+
+
+                                    moveScenarioUp.type =
+                                        "button";
+
+
+                                    moveScenarioUp.className =
+                                        "secondary-button";
+
+
+                                    moveScenarioUp.textContent =
+                                        "↑";
+
+
+                                    moveScenarioUp.title =
+                                        "Monter le scénario";
+
+
+                                    moveScenarioUp.disabled =
+                                        scenarioIndex === 0;
+
+
+                                    moveScenarioUp.addEventListener(
+                                        "click",
+                                        () => {
+
+                                            if (
+                                                scenarioIndex === 0
+                                            ) {
+
+                                                return;
+
+                                            }
+
+
+                                            [
+                                                chapter.scenarios[
+                                                    scenarioIndex - 1
+                                                ],
+                                                chapter.scenarios[
+                                                    scenarioIndex
+                                                ]
+                                            ] = [
+
+                                                chapter.scenarios[
+                                                    scenarioIndex
+                                                ],
+
+                                                chapter.scenarios[
+                                                    scenarioIndex - 1
+                                                ]
+
+                                            ];
+
+
+                                            renderChapters();
+
+                                            renderPreview();
+
+                                        }
+                                    );
+
+
+                                    /*
+                                    * DESCENDRE
+                                    */
+
+                                    const moveScenarioDown =
+                                        document
+                                            .createElement(
+                                                "button"
+                                            );
+
+
+                                    moveScenarioDown.type =
+                                        "button";
+
+
+                                    moveScenarioDown.className =
+                                        "secondary-button";
+
+
+                                    moveScenarioDown.textContent =
+                                        "↓";
+
+
+                                    moveScenarioDown.title =
+                                        "Descendre le scénario";
+
+
+                                    moveScenarioDown.disabled =
+                                        scenarioIndex ===
+                                        chapter.scenarios.length - 1;
+
+
+                                    moveScenarioDown.addEventListener(
+                                        "click",
+                                        () => {
+
+                                            if (
+                                                scenarioIndex ===
+                                                chapter.scenarios.length - 1
+                                            ) {
+
+                                                return;
+
+                                            }
+
+
+                                            [
+                                                chapter.scenarios[
+                                                    scenarioIndex
+                                                ],
+                                                chapter.scenarios[
+                                                    scenarioIndex + 1
+                                                ]
+                                            ] = [
+
+                                                chapter.scenarios[
+                                                    scenarioIndex + 1
+                                                ],
+
+                                                chapter.scenarios[
+                                                    scenarioIndex
+                                                ]
+
+                                            ];
+
+
+                                            renderChapters();
+
+                                            renderPreview();
+
+                                        }
+                                    );
+
+
+                                    /*
                                     * RETIRER
                                     */
 
@@ -713,11 +881,9 @@ const CampaignEditor = (() => {
 
 
                                             /*
-                                            * On redessine tous les chapitres.
-                                            *
-                                            * Le scénario retiré redevient
-                                            * immédiatement disponible dans
-                                            * les autres menus.
+                                            * Le scénario retiré
+                                            * redevient immédiatement
+                                            * disponible dans les menus.
                                             */
                                             renderChapters();
 
@@ -727,13 +893,34 @@ const CampaignEditor = (() => {
                                     );
 
 
+                                    scenarioActions.appendChild(
+                                        moveScenarioUp
+                                    );
+
+
+                                    scenarioActions.appendChild(
+                                        moveScenarioDown
+                                    );
+
+
+                                    scenarioActions.appendChild(
+                                        removeScenario
+                                    );
+
+
+                                    /*
+                                    * ================================================
+                                    * LIGNE
+                                    * ================================================
+                                    */
+
                                     row.appendChild(
                                         info
                                     );
 
 
                                     row.appendChild(
-                                        removeScenario
+                                        scenarioActions
                                     );
 
 

@@ -577,6 +577,32 @@ textarea {
 }
 
 
+.chapter-scenario__actions {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        8px;
+
+    flex-shrink:
+        0;
+
+}
+
+
+.chapter-scenario__actions
+.secondary-button {
+
+    padding:
+        7px 10px;
+
+}
+
+
 .chapter-scenario__info strong {
 
     color:
