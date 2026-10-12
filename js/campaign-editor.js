@@ -654,9 +654,7 @@ const CampaignEditor = (() => {
 
 
                                     scenarioTitle.textContent =
-                                        scenario
-                                            ?.title
-                                        ||
+                                        scenario?.title ||
                                         "Scénario introuvable";
 
 
@@ -880,11 +878,6 @@ const CampaignEditor = (() => {
                                                     );
 
 
-                                            /*
-                                            * Le scénario retiré
-                                            * redevient immédiatement
-                                            * disponible dans les menus.
-                                            */
                                             renderChapters();
 
                                             renderPreview();
@@ -932,11 +925,6 @@ const CampaignEditor = (() => {
                             );
 
                     }
-
-
-                    scenariosSection.appendChild(
-                        scenarioList
-                    );
 
 
                     /*
