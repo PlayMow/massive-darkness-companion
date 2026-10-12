@@ -1,5 +1,13 @@
 const CampaignHub = (() => {
 
+
+    const PLAYTEST_KEY =
+        "MDC_PLAYTEST_SCENARIO_V1";
+
+
+    const CAMPAIGN_CONTEXT_KEY =
+        "MDC_PLAYTEST_CAMPAIGN_CONTEXT_V1";
+
     let campaign = null;
 
     let progress = null;
@@ -180,6 +188,152 @@ const CampaignHub = (() => {
 
             }
         );
+
+    }
+
+    /*
+     * ------------------------------------------------
+     * LANCER UN SCÉNARIO
+     * ------------------------------------------------
+     */
+
+    function playScenario(
+        chapter,
+        chapterIndex,
+        scenarioId
+    ) {
+
+        /*
+         * Sécurité :
+         * le chapitre doit être débloqué.
+         */
+
+        const unlocked =
+            progress
+                .unlockedChapters
+                .includes(
+                    chapter.id
+                );
+
+
+        if (!unlocked) {
+
+            return;
+
+        }
+
+
+        /*
+         * Récupération du scénario
+         * depuis la bibliothèque.
+         */
+
+        const storedScenario =
+            ScenarioStore.get(
+                scenarioId
+            );
+
+
+        if (!storedScenario) {
+
+            window.alert(
+                "Impossible de charger ce scénario."
+            );
+
+
+            return;
+
+        }
+
+
+        /*
+         * On crée une copie destinée
+         * uniquement au Playtest.
+         *
+         * Cela permet d'injecter les vraies
+         * informations de campagne sans
+         * modifier ScenarioStore.
+         */
+
+        const playtestScenario = {
+
+            ...storedScenario,
+
+            campaign: {
+
+                id:
+                    campaign.id,
+
+                title:
+                    campaign.title,
+
+                chapter:
+                    chapterIndex + 1
+
+            }
+
+        };
+
+
+        /*
+         * Scénario transmis au Playtest.
+         */
+
+        sessionStorage.setItem(
+
+            PLAYTEST_KEY,
+
+            JSON.stringify(
+                playtestScenario
+            )
+
+        );
+
+
+        /*
+         * Contexte de campagne.
+         *
+         * Il sera exploité au Checkpoint H
+         * lorsque la quête sera terminée.
+         */
+
+        const campaignContext = {
+
+            campaignId:
+                campaign.id,
+
+            campaignRevision:
+                campaign.revision || 1,
+
+            chapterId:
+                chapter.id,
+
+            chapterIndex:
+                chapterIndex,
+
+            scenarioId:
+                scenarioId
+
+        };
+
+
+        sessionStorage.setItem(
+
+            CAMPAIGN_CONTEXT_KEY,
+
+            JSON.stringify(
+                campaignContext
+            )
+
+        );
+
+
+        /*
+         * Ouverture du Playtest.
+         */
+
+        window.location.href =
+            "scenario-playtest.html";
 
     }
 
@@ -546,6 +700,73 @@ const CampaignHub = (() => {
                                 row.appendChild(
                                     info
                                 );
+
+
+                                /*
+                                * ACTION DU SCÉNARIO
+                                */
+
+                                if (
+                                    unlocked &&
+                                    scenario
+                                ) {
+
+                                    const actions =
+                                        document
+                                            .createElement(
+                                                "div"
+                                            );
+
+
+                                    actions.className =
+                                        "campaign-scenario__actions";
+
+
+                                    const playButton =
+                                        document
+                                            .createElement(
+                                                "button"
+                                            );
+
+
+                                    playButton.type =
+                                        "button";
+
+
+                                    playButton.className =
+                                        "primary-button";
+
+
+                                    playButton.textContent =
+                                        scenarioCompleted
+                                            ? "Rejouer"
+                                            : "Jouer";
+
+
+                                    playButton.addEventListener(
+                                        "click",
+                                        () => {
+
+                                            playScenario(
+                                                chapter,
+                                                chapterIndex,
+                                                scenarioId
+                                            );
+
+                                        }
+                                    );
+
+
+                                    actions.appendChild(
+                                        playButton
+                                    );
+
+
+                                    row.appendChild(
+                                        actions
+                                    );
+
+                                }
 
 
                                 scenarios.appendChild(

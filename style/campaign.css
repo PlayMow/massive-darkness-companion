@@ -552,6 +552,12 @@ body {
 
     gap:
         3px;
+
+    flex:
+        1;
+
+    min-width:
+        0;
 }
 
 
@@ -570,6 +576,21 @@ body {
 
     font-size:
         11px;
+}
+
+
+.campaign-scenario__actions {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    margin-left:
+        auto;
+
+    flex-shrink:
+        0;
 }
 
 
@@ -603,6 +624,40 @@ body {
 
     text-decoration:
         none;
+}
+
+
+.primary-button {
+    cursor:
+        pointer;
+
+    padding:
+        9px 14px;
+
+    color:
+        #151515;
+
+    background:
+        var(--accent);
+
+    border:
+        1px solid
+        var(--accent);
+
+    border-radius:
+        8px;
+
+    font-family:
+        inherit;
+
+    font-size:
+        12px;
+}
+
+
+.primary-button:hover {
+    background:
+        var(--accent-hover);
 }
 
 
