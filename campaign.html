@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Campagne — Massive Darkness Companion
+    </title>
+
+
+    <link
+        rel="stylesheet"
+        href="style/Ferrum/stylesheet.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style/Seshat/stylesheet.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style/campaign.css"
+    >
+
+
+    <!-- SCÉNARIOS -->
+
+    <script
+        src="js/scenario-schema.js"
+        defer
+    ></script>
+
+    <script
+        src="js/scenario-store.js"
+        defer
+    ></script>
+
+
+    <!-- CAMPAGNE -->
+
+    <script
+        src="js/campaign-schema.js"
+        defer
+    ></script>
+
+    <script
+        src="js/campaign-store.js"
+        defer
+    ></script>
+
+    <script
+        src="js/campaign-progress.js"
+        defer
+    ></script>
+
+
+    <!-- INTERFACE -->
+
+    <script
+        src="js/campaign.js"
+        defer
+    ></script>
+
+</head>
+
+
+<body>
+
+    <header class="campaign-header">
+
+        <div>
+
+            <div class="campaign-kicker">
+                MASSIVE DARKNESS COMPANION
+            </div>
+
+            <h1>
+                Campagne
+            </h1>
+
+        </div>
+
+
+        <a
+            href="campaign-editor.html"
+            class="secondary-button"
+        >
+            Campaign Editor
+        </a>
+
+    </header>
+
+
+    <main class="campaign-layout">
+
+
+        <!-- INTRODUCTION DE CAMPAGNE -->
+
+        <section
+            id="campaign-overview"
+            class="campaign-panel campaign-overview"
+        >
+
+            <div class="campaign-overview__top">
+
+                <div>
+
+                    <span
+                        id="campaign-status"
+                        class="campaign-status"
+                    >
+                        Campagne en cours
+                    </span>
+
+
+                    <h2 id="campaign-title">
+                        Campagne
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <p
+                id="campaign-description"
+                class="campaign-description"
+            ></p>
+
+
+            <div
+                id="campaign-meta"
+                class="campaign-meta"
+            ></div>
+
+        </section>
+
+
+        <!-- CHAPITRES -->
+
+        <section
+            id="chapters-panel"
+            class="campaign-panel"
+        >
+
+            <div class="section-heading">
+
+                <span>
+                    PROGRESSION
+                </span>
+
+                <div>
+
+                    <h2>
+                        Chapitres
+                    </h2>
+
+                    <p>
+                        Progressez dans la campagne pour débloquer les chapitres suivants.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="campaign-chapters"
+                class="campaign-chapters"
+            ></div>
+
+        </section>
+
+
+        <!-- ERREUR -->
+
+        <section
+            id="campaign-error"
+            class="campaign-panel campaign-error"
+            hidden
+        >
+
+            <h2>
+                Impossible de charger la campagne
+            </h2>
+
+            <p id="campaign-error-message"></p>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>
