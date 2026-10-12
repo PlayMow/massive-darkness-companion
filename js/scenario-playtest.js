@@ -4,6 +4,10 @@ const ScenarioPlaytest = (() => {
         "MDC_PLAYTEST_SCENARIO_V1";
 
 
+    const CAMPAIGN_CONTEXT_KEY =
+        "MDC_PLAYTEST_CAMPAIGN_CONTEXT_V1";        
+
+
     const DRAFT_KEY =
         "MDC_SCENARIO_DRAFT_V2";
 
@@ -17,6 +21,10 @@ const ScenarioPlaytest = (() => {
 
 
     let scenario;
+
+
+    let campaignContext =
+        null;
 
 
     const revealedNarrativeBlocks =
@@ -48,7 +56,128 @@ const ScenarioPlaytest = (() => {
 
     };        
 
+    function readCampaignContext() {
+
+        const raw =
+            sessionStorage.getItem(
+                CAMPAIGN_CONTEXT_KEY
+            );
+
+
+        if (!raw) {
+
+            return null;
+
+        }
+
+
+        try {
+
+            const parsed =
+                JSON.parse(
+                    raw
+                );
+
+
+            /*
+            * Le contexte doit correspondre
+            * exactement au scénario actuellement joué.
+            */
+
+            if (
+                !parsed.campaignId ||
+                !parsed.chapterId ||
+                !parsed.scenarioId ||
+                parsed.scenarioId !== scenario.id
+            ) {
+
+                return null;
+
+            }
+
+
+            return parsed;
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Impossible de lire le contexte de campagne.",
+                error
+            );
+
+
+            return null;
+
+        }
+
+    }
+
+    function configureReturnLink() {
+
+        const link =
+            document.getElementById(
+                "playtest-return"
+            );
+
+
+        if (
+            !campaignContext
+        ) {
+
+            link.href =
+                "scenario-editor.html";
+
+            link.textContent =
+                "Retour à l'éditeur";
+
+
+            return;
+
+        }
+
+
+        link.href =
+            "campaign.html?campaignId=" +
+            encodeURIComponent(
+                campaignContext.campaignId
+            );
+
+
+        link.textContent =
+            "Retour à la campagne";
+
+    }
+
     function getSaveKey() {
+
+        /*
+        * Une partie de campagne possède
+        * sa propre sauvegarde de scénario.
+        *
+        * Elle ne doit pas partager son état
+        * avec un Playtest lancé depuis l'éditeur.
+        */
+
+        if (
+            campaignContext
+        ) {
+
+            return (
+                SAVE_PREFIX +
+                "CAMPAIGN_" +
+                campaignContext.campaignId +
+                "_" +
+                scenario.id
+            );
+
+        }
+
+
+        /*
+        * Playtest libre depuis le Scenario Editor.
+        */
 
         return (
             SAVE_PREFIX +
@@ -1247,7 +1376,14 @@ const ScenarioPlaytest = (() => {
             readScenario();
 
 
+        campaignContext =
+            readCampaignContext();
+
+
         loadPlaytestState();
+
+
+        configureReturnLink();
 
 
         renderScenarioInfo();

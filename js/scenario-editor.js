@@ -9,6 +9,9 @@ const ScenarioEditor = (() => {
     const PLAYTEST_KEY =
         "MDC_PLAYTEST_SCENARIO_V1";
 
+    const CAMPAIGN_CONTEXT_KEY =
+        "MDC_PLAYTEST_CAMPAIGN_CONTEXT_V1";
+
     const TOKEN_TYPES = [
 
         ["objective", "Jeton Objectif"],
@@ -2141,6 +2144,16 @@ const ScenarioEditor = (() => {
 
         );
 
+        /*
+        * Un lancement depuis le Scenario Editor
+        * est toujours un Playtest libre.
+        *
+        * On supprime donc un éventuel ancien
+        * contexte de campagne.
+        */
+        sessionStorage.removeItem(
+            CAMPAIGN_CONTEXT_KEY
+        );
 
         /*
         * sessionStorage sert à transmettre
